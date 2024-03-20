@@ -21,7 +21,7 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t grupo4sdypp2024/TP1-h1 -f dockerfiles/ejemplo1.dockerfile .
-          docker push grupo4sdypp2024/TP1-h1
+          docker build -t grupo4sdypp2024/tp1-h1 -f prueba-pipeline/dockerfiles/ejemplo1.dockerfile .
+          docker push grupo4sdypp2024/tp1-h1
 
       # Entrar por ssh, pullear la imagen en la vm de gcloud, y correr el servicio
