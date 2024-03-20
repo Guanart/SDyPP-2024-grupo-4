@@ -1,0 +1,27 @@
+name: SDyPP-grupo4
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Login to DockerHub
+        run: echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t grupo4sdypp2024/TP1-h1 -f dockerfiles/ejemplo1.dockerfile .
+          docker push grupo4sdypp2024/TP1-h1
+
+      # Entrar por ssh, pullear la imagen en la vm de gcloud, y correr el servicio
