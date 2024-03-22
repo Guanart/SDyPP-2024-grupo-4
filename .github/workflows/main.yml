@@ -5,6 +5,11 @@ on:
     branches:
       - main
 
+env:
+  PROJECT_ID: sharp-technique-416800
+  REGION: us-east1-b
+  INSTANCE: vm3
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -13,15 +18,34 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: 'Google auth'
+        id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+        
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+        with:
+          project_id: '${{ env.PROJECT_ID }}'
+
       - name: Login to DockerHub
-        run: echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: Build and push Docker image
         run: |
           docker build -t grupo4sdypp2024/tp1-h1 -f prueba-pipeline/dockerfiles/ejemplo1.dockerfile .
           docker push grupo4sdypp2024/tp1-h1
 
-      # Entrar por ssh, pullear la imagen en la vm de gcloud, y correr el servicio
+      # - name: 'Create release name'
+      #   run: |
+      #     echo "RELEASE_NAME=$\{{ env.APP }}-${GITHUB_SHA::7}-${GITHUB_RUN_NUMBER}" >> ${GITHUB_ENV}
+
+      - name: 'Deploy'
+        run: |
+          gcloud compute project-info add-metadata --metadata "ssh-keys=:${{ secrets.SSH_PRIVATE_KEY }}"
+          gcloud compute firewall-rules create allow-8011 --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=tcp:8011 --source-ranges=0.0.0.0/0
+          gcloud compute ssh ${{ env.INSTANCE }} --zone=${{ env.REGION }} --command "docker pull grupo4sdypp2024/tp1-h1 && docker run -p 8011:8011 grupo4sdypp2024/tp1-h1"
+          
+      # Encontré esto: https://github.com/google-github-actions/example-workflows/blob/main/workflows/deploy-cloudrun/cloudrun-source.yml
+      # Y esto: https://github.com/google-github-actions/auth?tab=readme-ov-file#sake
