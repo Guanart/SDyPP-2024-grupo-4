@@ -4,7 +4,10 @@ const net = require('net');
 // { id: integer, data: {Object}}
 const _PROTOCOLO_ = {
   saludo: function (socket, id, data) {
-    write(socket, id, { message: 'Hola!' }, null)
+    setTimeout(() => {
+      console.log("Respondiendo saludo...")
+      write(socket, id, { message: 'Hola!' }, null)
+    }, 3000);
   }
 }
 

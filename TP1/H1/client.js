@@ -5,9 +5,10 @@ const opts = {
   port: 52030
 }
 
+
 const socket = net.createConnection(opts, () => {
   var buffer = '';                
-
+  
   socket.on('data', (chunk) => {    
     buffer += chunk.toString();     // Cada ves que llega data, se concatena en el buffer el chunk de datos.
     buffer = read(buffer);          // Se llama a la función read para que obtenga los datos que estén antes de un "separador", deja en el buffer el resto
@@ -18,6 +19,11 @@ const socket = net.createConnection(opts, () => {
 
 socket.on('end', () => {
   console.log('Desconectado del server');
+});
+
+
+socket.on('error', (err) => {
+  console.error(err);
 });
 
 // --------------------------------------------------------
@@ -70,6 +76,7 @@ async function task(socket, data) {
 
   return new Promise(function (resolve, reject) {
     _PROMISES_[id] = { resolve, reject };
+    console.log("Enviando y esperando saludo...")
     write(socket, id, data);
   });
 }
