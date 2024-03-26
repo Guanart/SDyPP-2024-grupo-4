@@ -7,7 +7,7 @@ const _PROTOCOLO_ = {
     setTimeout(() => {
       console.log("Respondiendo saludo...")
       write(socket, id, { message: 'Hola!' }, null)
-    }, 3000);
+    }, 5000);
   }
 }
 
