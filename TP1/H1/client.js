@@ -23,7 +23,11 @@ socket.on('end', () => {
 
 
 socket.on('error', (err) => {
+  if (err.code === 'ECONNREFUSED') {
+    console.log('El servidor está cerrado');
+  } else { 
   console.error(err);
+  }
 });
 
 // --------------------------------------------------------

@@ -5,37 +5,36 @@ const opts = {
   port: 52030
 }
 
-var socket;
-
-function abrir_conexion(socket) {
-  socket = net.createConnection(opts, () => {
-    var buffer = '';                
-    
-    socket.on('data', (chunk) => {    
-      buffer += chunk.toString();     // Cada ves que llega data, se concatena en el buffer el chunk de datos.
-      buffer = read(buffer);          // Se llama a la función read para que obtenga los datos que estén antes de un "separador", deja en el buffer el resto
-    });
-
-    _MAIN_(socket); 
+function callback() {
+  var buffer = '';                
+  
+  socket.on('data', (chunk) => {    
+    buffer += chunk.toString();     // Cada ves que llega data, se concatena en el buffer el chunk de datos.
+    buffer = read(buffer);          // Se llama a la función read para que obtenga los datos que estén antes de un "separador", deja en el buffer el resto
   });
+
+  _MAIN_(socket); 
 }
 
-abrir_conexion(socket);
+const socket = net.createConnection(opts, callback);
 
 socket.on('end', () => {
   console.log('Desconectado del server');
 });
 
-socket.on('close', () => {
-  console.log('El servidor cerro la conexión');
-  console.log("Reconectando al servidor...");
-  setTimeout(() => { 
-    abrir_conexion(socket) 
-  }, 10000);
-});
-
 socket.on('error', (err) => {
-  console.error(err);
+  if (err.code === 'ECONNRESET') {
+    console.log('El servidor cerró de forma abrupta');
+    console.log('Intentando reconectar...')
+    setTimeout(() => {
+      socket.connect(opts, callback);
+    }, 10000);
+    
+  } else if (err.code === 'ECONNREFUSED') {
+    console.log('El servidor está cerrado');
+  } else { 
+    console.error(err);
+  }
 });
 
 // --------------------------------------------------------
