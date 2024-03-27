@@ -5,10 +5,7 @@ const opts = {
   port: 52030
 }
 
-var reconexiones = 0;
-
 function callback() {
-  reconexiones = 0;
   var buffer = '';                
   
   socket.on('data', (chunk) => {    
@@ -19,7 +16,7 @@ function callback() {
   _MAIN_(socket); 
 }
 
-const socket = net.createConnection(opts, callback); // callback se setea al evento connect
+const socket = net.createConnection(opts, callback);
 
 socket.on('end', () => {
   console.log('Desconectado del server');
@@ -32,36 +29,13 @@ socket.on('error', (err) => {
     setTimeout(() => {
       socket.connect(opts, callback);
     }, 10000);
+    
   } else if (err.code === 'ECONNREFUSED') {
-    console.log('El servidor está cerrado'); 
-  } else {
-    console.error(err);
-  }
-});
-
-
-/*
-socket.on('error', (err) => {
-  if (err.code === 'ECONNRESET') {
-    console.log('El servidor cerró de forma abrupta');
-    console.log('Intentando reconectar...')
-    setTimeout(() => {
-      socket.connect(opts, callback);
-    }, 5000);
-
-  } else if (err.code === 'ECONNREFUSED') {
-    console.log('El servidor está cerrado'); 
-    if (reconexiones >= 0 && reconexiones <= 2) {
-      setTimeout(() => {
-        reconexiones += 1;
-        socket.connect(opts, callback);
-      }, 5000);
-    }
+    console.log('El servidor está cerrado');
   } else { 
     console.error(err);
   }
 });
-*/
 
 // --------------------------------------------------------
 
