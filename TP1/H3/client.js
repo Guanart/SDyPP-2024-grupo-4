@@ -31,7 +31,6 @@ function connect() {
   socket.on('error', (err) => {
     if (err.code === 'ECONNRESET') {
       console.log('El servidor cerró de forma abrupta');
-      console.log('Intentando reconectar...')
       reconectar();
     } else if (err.code === 'ECONNREFUSED') {
       console.log('El servidor está cerrado');
@@ -45,6 +44,7 @@ function connect() {
 function reconectar() {
   if (!socket || socket.destroyed) { // Verifica si no hay conexión existente
     if (reconexiones < 2) {
+      console.log('Intentando reconectar...');
       setTimeout(() => {
         reconexiones += 1;
         connect();

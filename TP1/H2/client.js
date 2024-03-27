@@ -5,77 +5,70 @@ const opts = {
   port: 52030
 }
 
-var reconexiones = 0;
+let reconexiones = 0;
 
 function callback() {
   reconexiones = 0;
-  var buffer = '';                
-  
-  socket.on('data', (chunk) => {    
-    buffer += chunk.toString();     // Cada ves que llega data, se concatena en el buffer el chunk de datos.
-    buffer = read(buffer);          // Se llama a la función read para que obtenga los datos que estén antes de un "separador", deja en el buffer el resto
+  var buffer = '';
+
+  socket.on('data', (chunk) => {
+    buffer += chunk.toString();
+    buffer = read(buffer);
   });
 
-  _MAIN_(socket); 
+  _MAIN_(socket);
 }
 
-const socket = net.createConnection(opts, callback); // callback se setea al evento connect
+let socket;
 
-socket.on('end', () => {
-  console.log('Desconectado del server');
-});
+function connect() {
+  socket = net.createConnection(opts, callback);
+  socket.on('end', () => {
+    console.log('Desconectado del server');
+    reconectar();
+  });
 
-socket.on('error', (err) => {
-  if (err.code === 'ECONNRESET') {
-    console.log('El servidor cerró de forma abrupta');
-    console.log('Intentando reconectar...')
-    setTimeout(() => {
-      socket.connect(opts, callback);
-    }, 10000);
-  } else if (err.code === 'ECONNREFUSED') {
-    console.log('El servidor está cerrado'); 
-  } else {
-    console.error(err);
-  }
-});
+  socket.on('error', (err) => {
+    if (err.code === 'ECONNRESET') {
+      console.log('El servidor cerró de forma abrupta');
+      console.log('Intentando reconectar...')
+      reconectar();
+    } else if (err.code === 'ECONNREFUSED') {
+      console.log('El servidor está cerrado');
+      reconectar();
+    } else {
+      console.error(err);
+    }
+  });
+}
 
-
-/*
-socket.on('error', (err) => {
-  if (err.code === 'ECONNRESET') {
-    console.log('El servidor cerró de forma abrupta');
-    console.log('Intentando reconectar...')
-    setTimeout(() => {
-      socket.connect(opts, callback);
-    }, 5000);
-
-  } else if (err.code === 'ECONNREFUSED') {
-    console.log('El servidor está cerrado'); 
-    if (reconexiones >= 0 && reconexiones <= 2) {
+function reconectar() {
+  if (!socket || socket.destroyed) { // Verifica si no hay conexión existente
+    if (reconexiones < 2) {
       setTimeout(() => {
         reconexiones += 1;
-        socket.connect(opts, callback);
+        connect();
       }, 5000);
+    } else {
+      console.log('Se han realizado 3 intentos de reconexión. Deteniendo el cliente.');
+      socket.destroy();
     }
-  } else { 
-    console.error(err);
   }
-});
-*/
+}
 
-// --------------------------------------------------------
+connect();
 
 const _PROMISES_ = {};
 
 function read(buffer) {
-  let responses = buffer.split('|');  // Separo por "|"
-  buffer = responses.pop();           // Dejo en buffer solo lo que llegó luego de último "|"
+  let responses = buffer.split('|');
+  buffer = responses.pop();
 
   try {
-    responses = responses.map(JSON.parse);            // Deserealizamos cada respuesta
+    responses = responses.map(JSON.parse);
 
-    responses.forEach((message) => {                    
-      if (!_PROMISES_.hasOwnProperty(message.id)) { 
+    responses.forEach((message) => {
+      if (!_PROMISES_.hasOwnProperty(message.id)) {
         return;
       }
 
@@ -124,7 +117,7 @@ async function _MAIN_(socket) {
   try {
     var result = await task(socket, {
       type: 'saludo',
-      data: 'Hola' // todo: INPUT
+      data: 'Hola'
     });
 
     console.log(result);
@@ -132,5 +125,3 @@ async function _MAIN_(socket) {
     console.error(err);
   }
 }
-
-// --------------------------------------------------------
