@@ -1,7 +1,7 @@
 import socket
 import json
 
-def send_greetings_to_servers(servers, greeting):
+def mandar_saludo(servers, greeting):
     for server_address in servers:
         try:
             client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -17,9 +17,9 @@ def send_greetings_to_servers(servers, greeting):
 
 if __name__ == "__main__":
     # Lista de servidores a los que se enviará el saludo
-    servers_list = [('127.0.0.1', 8000), ('127.0.0.1', 8001)]  # Agrega más servidores si es necesario
+    servers_list = [('127.0.0.1', 8000)]  # Agrega más servidores si es necesario
 
     # Saludo que se enviará a los servidores
     greeting = "¡Hola desde el cliente!"
 
-    send_greetings_to_servers(servers_list, greeting)
+    mandar_saludo(servers_list, greeting)
