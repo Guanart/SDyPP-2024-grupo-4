@@ -21,15 +21,16 @@ class Servidor {
 
   _PROTOCOLO_ = {
     setContacto: (socket, id, data) => {
-      // Envía mensaje de recibido:
-      this.write(socket, id, {message: "Recibido"}, null);
-      // Registra nodo y envía a todos los contactos en _CONTACTOS_ la lista actualizada (hace broadcast)
-      this._CONTACTOS_.push({ ip: data.ip, puerto: data.puerto }); // Agrego a la lista de contactos este nodo
+      this.write(socket, id, {message: "Recibido"}, null);  // Envía mensaje de recibido.
+      this._CONTACTOS_.push({ ip: data.ip, puerto: data.puerto });  // Registra nodo y envía la lista a este nodo.
+      this.cliente.connectToServer(contacto.ip, contacto.puerto);
+    },
+    getContactos:(socket, id, data) => {
+      this.write(socket, id, {message: "Recibido"}, null);  // Envía mensaje de recibido.
       this._CONTACTOS_.forEach((contacto) => {
         this.setContactos();
         this.cliente.connectToServer(contacto.ip, contacto.puerto);
-      });
-      
+      })
     }
   }
 

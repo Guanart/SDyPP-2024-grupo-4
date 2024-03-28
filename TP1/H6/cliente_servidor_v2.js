@@ -238,11 +238,28 @@ class ClienteContactos {  // Solo se registra en el server
         puerto: this.self_opts.port
       });
       console.log(result);
+      
+      setInterval(this.obtenerContactos(socket), 15000);  // Cada 15 segundos va a obtener la lista actualizada de contactos
+
     } catch (err) {
       console.error(err);
     }
   }
+
+  async obtenerContactos(socket) {  // Se va a ejecutar periódicamente
+    try {
+      var result = await this.task(socket, {
+        type: "getContactos"
+      });
+      console.log(result);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
 }
+
+
 
 
 //--------------------------------------------------------------------
