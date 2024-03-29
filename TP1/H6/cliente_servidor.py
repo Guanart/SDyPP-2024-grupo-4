@@ -2,6 +2,8 @@ import socket
 import json
 import signal
 import sys
+import random
+import threading
 
 class Servidor:
     def __init__(self, host, port):
@@ -13,21 +15,11 @@ class Servidor:
         self.cliente = cliente
         self.cliente.setServidor(self)
         
-    # Cierra el servidor con "CTRL+C"
-    def shutdown(self, signum, frame):
-        print("Apagando el servidor...")
-        self.server_socket.close()
-        sys.exit(0)
-
     def start(self):
-        self.server_socket.bind((self.host, self.port))
-        # Escucha por conexiones entrantes
+        self.server_socket.bind(("", self.port))
         self.server_socket.listen(1)
         print(f"Servidor escuchando en {self.host}:{self.port}...")
-        # Asigna el método shutdown para manejar la señal SIGINT
-        signal.signal(signal.SIGINT, self.shutdown)
         while True:
-            # Acepta una conexión entrante
             client_socket, addr = self.server_socket.accept()
             print(f"Conexión establecida desde: {addr}")
 
@@ -41,6 +33,11 @@ class Servidor:
 
             if 'saludo' in received_data:
                 response_data = {'respuesta': f"Hola desde el servidor {self.host}:{self.port}!"}
+            elif 'contactos' in received_data:
+                response_data = {'confirmacion': "Contactos recibidos"}
+                t_mandar_saludo = threading.Thread(target=self.cliente.mandar_saludo, args=(received_data["contactos"],))
+                t_mandar_saludo.start()
+                t_mandar_saludo.join()
             else:
                 response_data = {'error': 'Formato JSON inválido'}
 
@@ -61,9 +58,12 @@ class Cliente:
 
     def mandar_saludo(self, servers):
         for server_address in servers:
+            if (server_address["ip"]==self.servidor.host and server_address["port"]==self.servidor.port):
+                continue
             try:
                 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                client_socket.connect(server_address)
+                tupla_conexion=(server_address["ip"], server_address["port"])
+                client_socket.connect(tupla_conexion)
                 message = {'saludo': f"Hola, soy el nodo {self.servidor.host}:{self.servidor.port}!"}
                 message_json = json.dumps(message)
                 client_socket.sendall(message_json.encode())
@@ -80,7 +80,7 @@ class Cliente:
             message = {
                 'registrar': {
                     'ip': self.servidor.host,
-                    'puerto': self.servidor.port
+                    'port': self.servidor.port
                 }
             }
             message_json = json.dumps(message)
@@ -90,28 +90,40 @@ class Cliente:
             client_socket.close()
         except Exception as e:
             print("Error al conectar con el servidor de contactos")
+            print(e)
+
+# Cierra el servidor con "CTRL+C"
+def handler(num, frame):
+    print("Se ha desconectado el nodo")
+    server.stop()
+    sys.exit(0)
+    return default_handler(num, frame)
+
 
 if __name__ == "__main__":
+    default_handler = signal.getsignal(signal.SIGINT)
+    signal.signal(signal.SIGINT, handler)
 
     # argumentos = sys.argv
-    # if len(argumentos) != 3:
+    # if len(argumentos) != 2:
     #     print("Uso: python cliente_servidor.py <servidor_contactos_ip:servidor_contactos_puerto>")
     #     sys.exit(1)
     
-    # argumentos = argumentos.split(":")
+    # argumentos = argumentos[1].split(":")
 
-    # try:
-    #     int(argumentos[1])
-    # except:
-    #     print("Uso: python cliente_servidor.py <servidor_contactos_ip:servidor_contactos_puerto>")
-    #     print("- servidor_contactos_puerto debe ser un numero entero")
-
-    server = Servidor('127.0.0.1', 8000)
-    # cliente = Cliente(argumentos[0],int(argumentos[1]))
-    cliente = Cliente("127.0.0.1", 8001)
+    # INIT
+    server = Servidor('127.0.0.1', random.randint(1024,65535))
+    #cliente = Cliente(argumentos[0],int(argumentos[1]))
+    cliente = Cliente('127.0.0.1', 8000)
     server.setCliente(cliente)
-    cliente.registrarse()
     try:
-        server.start()
+        # Crear hilos para ejecutar el servidor y el cliente en paralelo
+        t_servidor = threading.Thread(target=server.start)
+        t_cliente = threading.Thread(target=cliente.registrarse)
+        # Iniciar los hilos
+        t_servidor.start()
+        t_cliente.start()
+        t_servidor.join()
+        t_cliente.join()
     finally:
         server.stop()
