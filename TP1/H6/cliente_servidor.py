@@ -54,7 +54,6 @@ class Cliente:
 
     def setServidor(self, servidor: Servidor):
         self.servidor = servidor
-        
 
     def mandar_saludo(self, servers):
         for server_address in servers:
@@ -104,17 +103,16 @@ if __name__ == "__main__":
     default_handler = signal.getsignal(signal.SIGINT)
     signal.signal(signal.SIGINT, handler)
 
-    # argumentos = sys.argv
-    # if len(argumentos) != 2:
-    #     print("Uso: python cliente_servidor.py <servidor_contactos_ip:servidor_contactos_puerto>")
-    #     sys.exit(1)
+    argumentos = sys.argv
+    if len(argumentos) != 2:
+        print("Uso: python cliente_servidor.py <servidor_contactos_ip:servidor_contactos_puerto>")
+        sys.exit(1)
     
-    # argumentos = argumentos[1].split(":")
+    argumentos = argumentos[1].split(":")
 
     # INIT
     server = Servidor('127.0.0.1', random.randint(1024,65535))
-    #cliente = Cliente(argumentos[0],int(argumentos[1]))
-    cliente = Cliente('127.0.0.1', 8000)
+    cliente = Cliente(argumentos[0],int(argumentos[1]))
     server.setCliente(cliente)
     try:
         # Crear hilos para ejecutar el servidor y el cliente en paralelo
