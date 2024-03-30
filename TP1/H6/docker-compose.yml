@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  servidor_contactos:
+    image: grupo4sdypp2024/tp1-h6-servidor_contactos
+    container_name: hit6_servidor_contactos
+    networks:
+      - my_network
+    volumes:
+      - ./servidor_contactos.log:/usr/local/src/pythonapp/servidor_contactos.log
+
+  cliente_servidor1:
+    image: grupo4sdypp2024/tp1-h6-cliente_servidor
+    container_name: hit6_cliente_servidor1
+    networks:
+      - my_network
+    command: ["hit6_servidor_contactos:8000"]
+    depends_on:
+      - servidor_contactos
+    volumes:
+      - ./cliente_servidor1.log:/usr/local/src/pythonapp/cliente_servidor.log
+
+  cliente_servidor2:
+    image: grupo4sdypp2024/tp1-h6-cliente_servidor
+    container_name: hit6_cliente_servidor2
+    networks:
+      - my_network
+    command: ["hit6_servidor_contactos:8000"]
+    depends_on:
+      - servidor_contactos
+    volumes:
+      - ./cliente_servidor2.log:/usr/local/src/pythonapp/cliente_servidor.log
+
+  cliente_servidor3:
+    image: grupo4sdypp2024/tp1-h6-cliente_servidor
+    container_name: hit6_cliente_servidor3
+    networks:
+      - my_network
+    command: ["hit6_servidor_contactos:8000"]  
+    depends_on:
+      - servidor_contactos
+    volumes:
+      - ./cliente_servidor3.log:/usr/local/src/pythonapp/cliente_servidor.log
+
+networks:
+  my_network:
+    driver: bridge

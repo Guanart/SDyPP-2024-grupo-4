@@ -1,7 +1,6 @@
 import socket
 import json
-import signal
-import sys
+import logging
 
 class ServidorContactos:
     def __init__(self, host, port):
@@ -18,9 +17,11 @@ class ServidorContactos:
         self.server_socket.bind(("", self.port))
         self.server_socket.listen(1)
         print(f"Servidor de contactos escuchando en {self.host}:{self.port}...")
+        logging.info(f"Servidor de contactos escuchando en {self.host}:{self.port}...")
         while True:
             client_socket, addr = self.server_socket.accept()
             print(f"Conexión establecida desde: {addr}")
+            logging.info(f"Conexión establecida desde: {addr}")
             data = client_socket.recv(1024)
 
             if not data:
@@ -56,6 +57,7 @@ class ClienteContactos:
 
     def enviar_contactos(self):
         print(self.contactos)
+        logging.info(self.contactos)
         for contacto in self.contactos:
             try:
                 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -66,23 +68,15 @@ class ClienteContactos:
                 client_socket.sendall(message_json.encode())
                 response = client_socket.recv(1024)
                 print(f"Respuesta: {response.decode()}")
+                logging.info(f"Respuesta: {response.decode()}")
                 client_socket.close()
             except Exception as e:
-                print(e) #Este es
-
-# Cierra el servidor con "CTRL+C"
-def handler(num, frame):
-    print("Se ha desconectado el nodo")
-    server.stop()
-    #sys.exit(0)
-    return default_handler(num, frame)
-
+                print(e)
+                logging.error(e)
 
 if __name__ == "__main__":
-    default_handler = signal.getsignal(signal.SIGINT)
-    signal.signal(signal.SIGINT, handler)
-
-    server = ServidorContactos('127.0.0.1', 8000)
+    logging.basicConfig(filename='servidor_contactos.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    server = ServidorContactos('0.0.0.0', 8000)
     cliente = ClienteContactos()
     server.setCliente(cliente)
     try:

@@ -1,7 +1,9 @@
+#!/usr/bin/python3
 import asyncio
 import json
-import signal
 import time
+import sys
+import logging
 
 class ServidorContactos:
     def __init__(self, host, port):
@@ -18,6 +20,7 @@ class ServidorContactos:
     async def start(self):
         self.server = await asyncio.start_server(self.handle_client, self.host, self.port)
         print(f"Servidor de inscripciones escuchando en {self.host}:{self.port}...")
+        logging.info(f"Servidor de inscripciones escuchando en {self.host}:{self.port}...")
         async with self.server:
             await self.start_window_timer()  
 
@@ -30,15 +33,19 @@ class ServidorContactos:
                 self.ventana_actual = self.ventana_siguiente
                 self.ventana_siguiente = []
                 print("Inició un nuevo minuto")
+                logging.info("Inició un nuevo minuto")
                 print(f"Ventana actual: {self.ventana_actual} ")
+                logging.info(f"Ventana actual: {self.ventana_actual} ")
                 print("------------------------------------------------")
+                logging.info("------------------------------------------------")
                 print("Se ha iniciado una nueva ventana de inscripciones.")
+                logging.info("Se ha iniciado una nueva ventana de inscripciones.")
             await asyncio.sleep(1)  # Espera un segundo antes de revisar nuevamente
 
     async def handle_client(self, reader, writer):
         addr = writer.get_extra_info('peername')
         print(f"Conexión establecida desde: {addr}")
-        print()
+        logging.info(f"Conexión establecida desde: {addr}")
 
         # Lee el buffer
         data = await reader.read(1024)
@@ -80,8 +87,9 @@ class ServidorContactos:
 
 
 async def main():
-    server = ServidorContactos('127.0.0.1', 8000)
+    server = ServidorContactos('0.0.0.0', 8000)
     await server.start()
 
 if __name__ == "__main__":
+    logging.basicConfig(filename='servidor_inscripciones.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')    
     asyncio.run(main())

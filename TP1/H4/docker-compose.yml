@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  cliente_servidor1:
+    image: grupo4sdypp2024/tp1-h4
+    container_name: hit4_cliente_servidor1
+    networks:
+      - my_network
+    command: ["0.0.0.0:8000", "hit4_cliente_servidor2:8001"]
+
+
+  cliente_servidor2:
+    image: grupo4sdypp2024/tp1-h4
+    container_name: hit4_cliente_servidor2
+    networks:
+      - my_network
+    command: ["0.0.0.0:8001", "hit4_cliente_servidor1:8000"]
+
+networks:
+  my_network:
+    driver: bridge

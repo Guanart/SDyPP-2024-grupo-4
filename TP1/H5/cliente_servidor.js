@@ -82,7 +82,11 @@ class Servidor {
     }
 
     try {
-      this._PROTOCOLO_[message.data.type](socket, message.id, message.data.data);
+      this._PROTOCOLO_[message.data.type](
+        socket,
+        message.id,
+        message.data.data
+      );
     } catch (err) {
       console.error(message);
       console.error(err);
@@ -108,16 +112,12 @@ class Cliente {
       host: host,
       port: port,
     };
-    this.reconexiones = 0;
     this.socket = null;
     this._PROMISES_ = {};
   }
 
-  
-
   connectToServer() {
     this.socket = net.createConnection(this.opts, () => {
-      this.reconexiones = 0;
       var buffer = "";
 
       this.socket.on("data", (chunk) => {
@@ -147,22 +147,10 @@ class Cliente {
   }
 
   reconectar() {
-    if (!this.socket || this.socket.destroyed) {
-      // Verifica si no hay conexión existente
-      if (this.reconexiones < 3) {
-        console.log('CLIENTE: Intentando reconectar...');
-        setTimeout(() => {
-          this.reconexiones += 1;
-          this.connectToServer();
-        }, 5000);
-      } else {
-        console.log(
-          "CLIENTE: Se han realizado 3 intentos de reconexión. Deteniendo el cliente."
-        );
-        this.socket.destroy();
-        this.socket.end();
-      }
-    }
+    console.log("CLIENTE: Intentando reconectar...");
+    setTimeout(() => {
+      this.connectToServer();
+    }, 5000);
   }
 
   read(buffer) {
@@ -207,7 +195,7 @@ class Cliente {
   async task(socket, data) {
     const id = Date.now().toString();
 
-    return new Promise( (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this._PROMISES_[id] = { resolve, reject };
       console.log("CLIENTE: Enviando y esperando saludo...");
       this.write(socket, id, data);
@@ -236,7 +224,9 @@ function main() {
   if (args.length !== 2) {
     console.error(
       "Se requieren dos argumentos en el formato <ip:puerto> para la dirección del servidor y del cliente."
-    );
+      );
+      console.log("Argumentos:")
+      console.log(args);
     process.exit(1);
   }
 
@@ -252,7 +242,7 @@ function main() {
 
   const ip_listening = args_servidor[0]; // IP de la interfaz donde escuchará el servidor
   const port_listening = args_servidor[1];
-  const ip_to_connect = args_cliente[0];  // IP del servidor a conectarse
+  const ip_to_connect = args_cliente[0]; // IP del servidor a conectarse
   const port_to_connect = args_cliente[1];
 
   cliente = new Cliente(ip_to_connect, port_to_connect);

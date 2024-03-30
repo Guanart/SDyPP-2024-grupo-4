@@ -1,0 +1,9 @@
+2024-03-30 21:10:21,645 - INFO - Mensaje para el log
+2024-03-30 21:10:21,650 - INFO - SERVIDOR: Servidor escuchando en 0.0.0.0:33752...
+2024-03-30 21:10:21,657 - INFO - CLIENTE: Respuesta del servidor de inscripciones: {"Inscripcion": "Has sido inscripto para la siguiente ventana"}
+2024-03-30 21:10:51,688 - INFO - CLIENTE: Consultando los inscriptos
+2024-03-30 21:10:51,689 - INFO - CLIENTE: Inscripciones actuales: []
+2024-03-30 21:11:21,720 - INFO - CLIENTE: Consultando los inscriptos
+2024-03-30 21:11:21,720 - INFO - CLIENTE: Inscripciones actuales: [{'ip': '0.0.0.0', 'port': 33752}, {'ip': '0.0.0.0', 'port': 43138}]
+2024-03-30 21:11:51,752 - INFO - CLIENTE: Consultando los inscriptos
+2024-03-30 21:11:51,752 - INFO - CLIENTE: Inscripciones actuales: [{'ip': '0.0.0.0', 'port': 33752}, {'ip': '0.0.0.0', 'port': 43138}]

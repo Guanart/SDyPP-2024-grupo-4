@@ -1,9 +1,9 @@
 import socket
 import json
-import signal
 import sys
 import random
 import threading
+import logging
 
 class Servidor:
     def __init__(self, host, port):
@@ -19,9 +19,11 @@ class Servidor:
         self.server_socket.bind(("", self.port))
         self.server_socket.listen(1)
         print(f"Servidor escuchando en {self.host}:{self.port}...")
+        logging.info(f"Servidor escuchando en {self.host}:{self.port}...")
         while True:
             client_socket, addr = self.server_socket.accept()
             print(f"Conexión establecida desde: {addr}")
+            logging.info(f"Conexión establecida desde: {addr}")
 
             # Recibe datos del cliente
             data = client_socket.recv(1024)
@@ -68,9 +70,11 @@ class Cliente:
                 client_socket.sendall(message_json.encode())
                 response = client_socket.recv(1024)
                 print(f"Respuesta del servidor {server_address}: {response.decode()}")
+                logging.info(f"Respuesta del servidor {server_address}: {response.decode()}")
                 client_socket.close()
             except Exception as e:
                 print(f"Error al conectar con el servidor {server_address}: {e}")
+                logging.error(f"Error al conectar con el servidor {server_address}: {e}")
 
     def registrarse(self):
         try:
@@ -86,32 +90,25 @@ class Cliente:
             client_socket.sendall(message_json.encode())
             response = client_socket.recv(1024)
             print(f"Respuesta del servidor de contactos: {response.decode()}")
+            logging.info(f"Respuesta del servidor de contactos: {response.decode()}")
             client_socket.close()
         except Exception as e:
             print("Error al conectar con el servidor de contactos")
+            logging.info("Error al conectar con el servidor de contactos")
             print(e)
-
-# Cierra el servidor con "CTRL+C"
-def handler(num, frame):
-    print("Se ha desconectado el nodo")
-    server.stop()
-    sys.exit(0)
-    return default_handler(num, frame)
-
+            logging.error(e)
 
 if __name__ == "__main__":
-    default_handler = signal.getsignal(signal.SIGINT)
-    signal.signal(signal.SIGINT, handler)
-
+    logging.basicConfig(filename='cliente_servidor.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     argumentos = sys.argv
     if len(argumentos) != 2:
         print("Uso: python cliente_servidor.py <servidor_contactos_ip:servidor_contactos_puerto>")
+        logging.info("Uso: python cliente_servidor.py <servidor_contactos_ip:servidor_contactos_puerto>")
         sys.exit(1)
     
     argumentos = argumentos[1].split(":")
 
-    # INIT
-    server = Servidor('127.0.0.1', random.randint(1024,65535))
+    server = Servidor('0.0.0.0', random.randint(1024,65535))
     cliente = Cliente(argumentos[0],int(argumentos[1]))
     server.setCliente(cliente)
     try:

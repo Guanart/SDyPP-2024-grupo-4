@@ -1,17 +1,17 @@
-const net = require('net');
+const net = require("net");
 
 const opts = {
-  host: '127.0.0.1',
-  port: 52030
-}
+  host: "127.0.0.1",
+  port: 8002,
+};
 
 let reconexiones = 0;
 
 function callback() {
   reconexiones = 0;
-  var buffer = '';
+  var buffer = "";
 
-  socket.on('data', (chunk) => {
+  socket.on("data", (chunk) => {
     buffer += chunk.toString();
     buffer = read(buffer);
   });
@@ -23,17 +23,17 @@ let socket;
 
 function connect() {
   socket = net.createConnection(opts, callback);
-  socket.on('end', () => {
-    console.log('Desconectado del server');
+  socket.on("end", () => {
+    console.log("Desconectado del server");
     reconectar();
   });
 
-  socket.on('error', (err) => {
-    if (err.code === 'ECONNRESET') {
-      console.log('El servidor cerró de forma abrupta');
+  socket.on("error", (err) => {
+    if (err.code === "ECONNRESET") {
+      console.log("El servidor cerró de forma abrupta");
       reconectar();
-    } else if (err.code === 'ECONNREFUSED') {
-      console.log('El servidor está cerrado');
+    } else if (err.code === "ECONNREFUSED") {
+      console.log("El servidor está cerrado");
       reconectar();
     } else {
       console.error(err);
@@ -42,17 +42,17 @@ function connect() {
 }
 
 function reconectar() {
-  if (!socket || socket.destroyed) { // Verifica si no hay conexión existente
-    if (reconexiones < 3) {
-      console.log('Intentando reconectar...')
-      setTimeout(() => {
-        reconexiones += 1;
-        connect();
-      }, 5000);
-    } else {
-      console.log('Se han realizado 3 intentos de reconexión. Deteniendo el cliente.');
-      socket.destroy();
-    }
+  if (reconexiones < 3) {
+    console.log("Intentando reconectar...");
+    setTimeout(() => {
+      reconexiones += 1;
+      connect();
+    }, 5000);
+  } else {
+    console.log(
+      "Se han realizado 3 intentos de reconexión. Deteniendo el cliente."
+    );
+    socket.destroy();
   }
 }
 
@@ -61,7 +61,7 @@ connect();
 const _PROMISES_ = {};
 
 function read(buffer) {
-  let responses = buffer.split('|');
+  let responses = buffer.split("|");
   buffer = responses.pop();
 
   try {
@@ -92,7 +92,7 @@ function read(buffer) {
 function write(socket, id, data) {
   try {
     data = JSON.stringify({ id, data });
-    socket.write(data + '|');
+    socket.write(data + "|");
   } catch (err) {
     console.error(data);
     console.error(err);
@@ -106,7 +106,7 @@ async function task(socket, data) {
 
   return new Promise(function (resolve, reject) {
     _PROMISES_[id] = { resolve, reject };
-    console.log("Enviando y esperando saludo...")
+    console.log("Enviando y esperando saludo...");
     write(socket, id, data);
   });
 }
@@ -116,8 +116,8 @@ async function task(socket, data) {
 async function _MAIN_(socket) {
   try {
     var result = await task(socket, {
-      type: 'saludo',
-      data: 'Hola'
+      type: "saludo",
+      data: "Hola",
     });
 
     console.log(result);

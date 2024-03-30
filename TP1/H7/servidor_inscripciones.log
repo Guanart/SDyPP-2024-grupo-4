@@ -1,0 +1,17 @@
+2024-03-30 21:10:21,179 - INFO - Servidor de inscripciones escuchando en 0.0.0.0:8000...
+2024-03-30 21:10:21,657 - INFO - Conexión establecida desde: ('172.28.0.3', 33998)
+2024-03-30 21:10:21,829 - INFO - Conexión establecida desde: ('172.28.0.4', 49140)
+2024-03-30 21:10:51,688 - INFO - Conexión establecida desde: ('172.28.0.3', 37132)
+2024-03-30 21:10:51,860 - INFO - Conexión establecida desde: ('172.28.0.4', 53896)
+2024-03-30 21:11:00,226 - INFO - Inició un nuevo minuto
+2024-03-30 21:11:00,227 - INFO - Ventana actual: [{'ip': '0.0.0.0', 'port': 33752}, {'ip': '0.0.0.0', 'port': 43138}] 
+2024-03-30 21:11:00,227 - INFO - ------------------------------------------------
+2024-03-30 21:11:00,228 - INFO - Se ha iniciado una nueva ventana de inscripciones.
+2024-03-30 21:11:21,720 - INFO - Conexión establecida desde: ('172.28.0.3', 36878)
+2024-03-30 21:11:21,891 - INFO - Conexión establecida desde: ('172.28.0.4', 42280)
+2024-03-30 21:11:51,752 - INFO - Conexión establecida desde: ('172.28.0.3', 56574)
+2024-03-30 21:11:51,923 - INFO - Conexión establecida desde: ('172.28.0.4', 59906)
+2024-03-30 21:12:00,297 - INFO - Inició un nuevo minuto
+2024-03-30 21:12:00,297 - INFO - Ventana actual: [] 
+2024-03-30 21:12:00,298 - INFO - ------------------------------------------------
+2024-03-30 21:12:00,298 - INFO - Se ha iniciado una nueva ventana de inscripciones.

@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  servidor_inscripciones:
+    image: grupo4sdypp2024/tp1-h7-servidor_inscripciones
+    container_name: hit7_servidor_inscripciones
+    networks:
+      - my_network
+    volumes:
+      - ./inscripciones.json:/usr/local/src/pythonapp/inscripciones.json
+      - ./servidor_inscripciones.log:/usr/local/src/pythonapp/servidor_inscripciones.log
+
+  cliente_servidor1:
+    image: grupo4sdypp2024/tp1-h7-cliente_servidor
+    container_name: hit7_cliente_servidor1
+    networks:
+      - my_network
+    command: ["hit7_servidor_inscripciones:8000"]
+    depends_on:
+      - servidor_inscripciones
+    volumes:
+      - ./cliente_servidor1.log:/usr/local/src/pythonapp/cliente_servidor.log
+
+  cliente_servidor2:
+    image: grupo4sdypp2024/tp1-h7-cliente_servidor
+    container_name: hit7_cliente_servidor2
+    networks:
+      - my_network
+    command: ["hit7_servidor_inscripciones:8000"]
+    depends_on:
+      - servidor_inscripciones
+    volumes:
+      - ./cliente_servidor2.log:/usr/local/src/pythonapp/cliente_servidor.log
+
+networks:
+  my_network:
+    driver: bridge
