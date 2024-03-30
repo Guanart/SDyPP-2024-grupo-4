@@ -105,25 +105,15 @@ class Cliente:
             print("Error al conectar con el servidor de contactos")
             print(e)
 
-
-# Cierra el servidor con "CTRL+C"
-async def shutdown(server):
-    print("Se ha desconectado el nodo")
-    server.stop()
-
 async def main():
-    """ 
     argumentos = sys.argv
     if len(argumentos) != 2:
         print("Uso: python cliente_servidor.py <servidor_contactos_ip:servidor_contactos_puerto>")
         sys.exit(1)
     argumentos = argumentos[1].split(":")
-    """
 
-    # INIT
     server = Servidor('127.0.0.1', random.randint(1024, 65535))
-    #cliente = Cliente(argumentos[0], int(argumentos[1]))
-    cliente = Cliente('127.0.0.1', 8000)
+    cliente = Cliente(argumentos[0], int(argumentos[1]))
     server.setCliente(cliente)
 
     server_task = asyncio.create_task(server.start())
@@ -132,6 +122,4 @@ async def main():
     await asyncio.gather(server_task, cliente_task)
 
 if __name__ == "__main__":
-    server = None
-    signal.signal(signal.SIGINT, lambda sig, frame: asyncio.create_task(shutdown(server)))
     asyncio.run(main())

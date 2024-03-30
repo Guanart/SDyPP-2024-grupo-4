@@ -5,7 +5,6 @@ const opts = {
   port: 52030
 }
 
-
 const socket = net.createConnection(opts, () => {
   var buffer = '';                
   
@@ -20,7 +19,6 @@ const socket = net.createConnection(opts, () => {
 socket.on('end', () => {
   console.log('Desconectado del server');
 });
-
 
 socket.on('error', (err) => {
   if (err.code === 'ECONNREFUSED') {
@@ -91,7 +89,7 @@ async function _MAIN_(socket) {
   try {
     var result = await task(socket, {
       type: 'saludo',
-      data: 'Hola' // todo: INPUT
+      data: 'Hola'
     });
 
     console.log(result);

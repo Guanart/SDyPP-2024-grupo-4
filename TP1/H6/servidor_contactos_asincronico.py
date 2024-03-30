@@ -81,12 +81,6 @@ class ClienteContactos:
             except Exception as e:
                 print(e)
 
-
-# Cierra el servidor con "CTRL+C"
-async def shutdown(server):
-    print("Se ha desconectado el nodo")
-    server.stop()
-
 async def main():
     server = ServidorContactos('127.0.0.1', 8000)
     cliente = ClienteContactos()
@@ -94,6 +88,4 @@ async def main():
     await server.start()
 
 if __name__ == "__main__":
-    server = None
-    signal.signal(signal.SIGINT, lambda sig, frame: asyncio.create_task(shutdown(server)))
     asyncio.run(main())

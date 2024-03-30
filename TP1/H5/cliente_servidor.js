@@ -149,8 +149,8 @@ class Cliente {
   reconectar() {
     if (!this.socket || this.socket.destroyed) {
       // Verifica si no hay conexión existente
-      if (this.reconexiones < 2) {
-        console.log('Intentando reconectar...');
+      if (this.reconexiones < 3) {
+        console.log('CLIENTE: Intentando reconectar...');
         setTimeout(() => {
           this.reconexiones += 1;
           this.connectToServer();

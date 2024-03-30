@@ -43,8 +43,8 @@ function connect() {
 
 function reconectar() {
   if (!socket || socket.destroyed) { // Verifica si no hay conexión existente
-    if (reconexiones < 2) {
-      console.log('Intentando reconectar...');
+    if (reconexiones < 3) {
+      console.log('Intentando reconectar...')
       setTimeout(() => {
         reconexiones += 1;
         connect();

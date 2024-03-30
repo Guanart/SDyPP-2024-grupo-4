@@ -1,6 +1,5 @@
 const net = require('net');
 
-// --------------------------------------------------------
 // { id: integer, data: {Object}}
 const _PROTOCOLO_ = {
   saludo: function (socket, id, data) {
@@ -32,7 +31,6 @@ const server = net.createServer((socket) => {
         
         socket.on('error', () => { });
 });
-
 
 server.on('error', (err) => {
   console.error(err);
