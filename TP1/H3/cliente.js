@@ -1,7 +1,7 @@
 const net = require("net");
 
 const opts = {
-  host: "127.0.0.1",
+  host: "35.185.42.7",
   port: 8003,
 };
 
