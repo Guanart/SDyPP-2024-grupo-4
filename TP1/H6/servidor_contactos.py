@@ -30,17 +30,18 @@ class ServidorContactos:
             received_data = json.loads(data.decode())
 
             if 'registrar' in received_data:
-                response_data = {'message': "El nodo se registro como contacto correctamente"}
-                self.contactos.append(received_data["registrar"])
+                self.contactos.append({"ip": addr[0], "port": received_data["registrar"]["port"]})
                 self.cliente.setContactos(self.contactos)
-                self.cliente.enviar_contactos()
+                response_data = {'message': "El nodo se registro como contacto correctamente"}
             else:
-                
                 response_data = {'error': 'Formato JSON invalido'}
 
             response_json = json.dumps(response_data)
             client_socket.sendall(response_json.encode())
             client_socket.close()
+
+            if 'registrar' in received_data:
+                self.cliente.enviar_contactos()
 
     def stop(self):
         self.server_socket.close()
@@ -62,6 +63,7 @@ class ClienteContactos:
             try:
                 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 contacto_tupla = (contacto["ip"], contacto["port"])
+                logging.info(f"Enviando lista de contactos a {contacto_tupla}...")
                 client_socket.connect(contacto_tupla)
                 message = self.contactos
                 message_json = json.dumps({'contactos' : message})
@@ -75,6 +77,7 @@ class ClienteContactos:
                 logging.error(e)
 
 if __name__ == "__main__":
+    logging.info("\n--------------------------------------------------------------------------------")
     logging.basicConfig(filename='servidor_contactos.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     server = ServidorContactos('0.0.0.0', 8000)
     cliente = ClienteContactos()
