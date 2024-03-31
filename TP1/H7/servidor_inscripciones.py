@@ -60,7 +60,7 @@ class ServidorContactos:
             if any(item == received_data["registrar_inscripcion"] for item in self.ventana_siguiente):
                 return
             # agregar la inscripcion al registro de la ventana siguiente
-            self.ventana_siguiente.append(received_data["registrar_inscripcion"])
+            self.ventana_siguiente.append({"ip": addr[0], "port": received_data["registrar_inscripcion"]["port"]})
         elif "consultar_inscripcion" in received_data:
             # responder con el registro de la ventana actual
             response_data = {"inscriptos": self.ventana_actual }
@@ -80,16 +80,27 @@ class ServidorContactos:
     async def registrar_json(self,ventana: list):
         if len(ventana)==0:
             return
-        current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        with open("inscripciones.json", 'a') as archivo: #with open() cierra automaticamente el archivo al terminar su ejecucion
-            json.dump({current_time : ventana}, archivo)
-            archivo.write('\n')
 
+        objetos_existentes = []
+        try:
+            with open("inscripciones.json", 'r') as archivo:
+                for linea in archivo:
+                    objeto = json.loads(linea)
+                    objetos_existentes.append(objeto)
+        except FileNotFoundError:
+            pass
+
+        current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        with open("inscripciones.json", 'a') as archivo:
+            if len(objetos_existentes)==0:
+                objetos_existentes.append({current_time : ventana})
+            json.dump(objetos_existentes, archivo)
 
 async def main():
     server = ServidorContactos('0.0.0.0', 8000)
     await server.start()
 
 if __name__ == "__main__":
-    logging.basicConfig(filename='servidor_inscripciones.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')    
+    logging.basicConfig(filename='servidor_inscripciones.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.info("\n--------------------------------------------------------------------------------")
     asyncio.run(main())

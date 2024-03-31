@@ -137,6 +137,5 @@ async def main():
 
 if __name__ == "__main__":
     logging.basicConfig(filename='cliente_servidor.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    logging.info('Mensaje para el log')
-
+    logging.info("\n--------------------------------------------------------------------------------")
     asyncio.run(main())
