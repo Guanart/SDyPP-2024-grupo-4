@@ -58,6 +58,7 @@ class ServidorContactos:
         if 'registrar_inscripcion' in received_data:
             response_data = {'Inscripcion': "Has sido inscripto para la siguiente ventana"}
             if any(item == received_data["registrar_inscripcion"] for item in self.ventana_siguiente):
+                writer.close()
                 return
             # agregar la inscripcion al registro de la ventana siguiente
             self.ventana_siguiente.append({"ip": addr[0], "port": received_data["registrar_inscripcion"]["port"]})
@@ -81,19 +82,22 @@ class ServidorContactos:
         if len(ventana)==0:
             return
 
-        objetos_existentes = []
+        objetos_existentes = None
         try:
             with open("inscripciones.json", 'r') as archivo:
-                for linea in archivo:
-                    objeto = json.loads(linea)
-                    objetos_existentes.append(objeto)
+                objetos_existentes = json.load(archivo)
         except FileNotFoundError:
-            pass
+            logging.error("Archivo inscripciones.json no encontrado")
+        except Exception as e:
+            logging.error(e)
+
+        if objetos_existentes is None:
+            logging.info("El archivo está vacío. Creando inscripciones.json")
+            objetos_existentes = []
 
         current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        with open("inscripciones.json", 'a') as archivo:
-            if len(objetos_existentes)==0:
-                objetos_existentes.append({current_time : ventana})
+        with open("inscripciones.json", 'w') as archivo:
+            objetos_existentes.append({current_time : ventana})
             json.dump(objetos_existentes, archivo)
 
 async def main():
