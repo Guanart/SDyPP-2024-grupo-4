@@ -9,6 +9,8 @@ services:
     volumes:
       - ./inscripciones.json:/usr/local/src/pythonapp/inscripciones.json
       - ./servidor_inscripciones.log:/usr/local/src/pythonapp/servidor_inscripciones.log
+    environment:
+      - PYTHONUNBUFFERED=1
 
   cliente_servidor1:
     image: grupo4sdypp2024/tp1-h7-cliente_servidor
@@ -20,6 +22,8 @@ services:
       - servidor_inscripciones
     volumes:
       - ./cliente_servidor1.log:/usr/local/src/pythonapp/cliente_servidor.log
+    environment:
+      - PYTHONUNBUFFERED=1
 
   cliente_servidor2:
     image: grupo4sdypp2024/tp1-h7-cliente_servidor
@@ -31,6 +35,8 @@ services:
       - servidor_inscripciones
     volumes:
       - ./cliente_servidor2.log:/usr/local/src/pythonapp/cliente_servidor.log
+    environment:
+      - PYTHONUNBUFFERED=1
 
 networks:
   my_network:

@@ -8,6 +8,8 @@ services:
       - my_network
     volumes:
       - ./servidor_contactos.log:/usr/local/src/pythonapp/servidor_contactos.log
+    environment:
+      - PYTHONUNBUFFERED=1
 
   cliente_servidor1:
     image: grupo4sdypp2024/tp1-h6-cliente_servidor
@@ -19,6 +21,8 @@ services:
       - servidor_contactos
     volumes:
       - ./cliente_servidor1.log:/usr/local/src/pythonapp/cliente_servidor.log
+    environment:
+      - PYTHONUNBUFFERED=1
 
   cliente_servidor2:
     image: grupo4sdypp2024/tp1-h6-cliente_servidor
@@ -30,6 +34,8 @@ services:
       - servidor_contactos
     volumes:
       - ./cliente_servidor2.log:/usr/local/src/pythonapp/cliente_servidor.log
+    environment:
+      - PYTHONUNBUFFERED=1
 
   cliente_servidor3:
     image: grupo4sdypp2024/tp1-h6-cliente_servidor
@@ -41,6 +47,8 @@ services:
       - servidor_contactos
     volumes:
       - ./cliente_servidor3.log:/usr/local/src/pythonapp/cliente_servidor.log
+    environment:
+      - PYTHONUNBUFFERED=1
 
 networks:
   my_network:
