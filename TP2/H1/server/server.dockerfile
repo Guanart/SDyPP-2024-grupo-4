@@ -15,11 +15,8 @@ RUN pip install -r server_requirements.txt
 # RUN docker pull grupo4sdypp2024/tp2-h1-task1
 # CMD ["python", "servidor.py"]
 
-
 RUN apk add --update --no-cache bash tini
 
 COPY ./entrypoint.sh /entrypoint.sh
-
-
 
 ENTRYPOINT ["tini", "--", "/entrypoint.sh"] 

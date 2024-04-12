@@ -14,5 +14,7 @@ done
 
 docker pull grupo4sdypp2024/tp2-h1-task1
 
+python servidor.py &
+
 # Bring docker service back to foreground
 fg %1
