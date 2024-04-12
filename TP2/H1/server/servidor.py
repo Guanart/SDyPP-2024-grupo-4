@@ -79,15 +79,16 @@ ok
 def ejecutarTareaRemota():
     task_params = request.get_json()
     print(task_params)
-    id_container = client_docker.containers.run("grupo4sdypp2024/tp2-task1", detach=True, ports={'8000/tcp': 8000})
+
+    id_container = client_docker.containers.run("grupo4sdypp2024/tp2-h1-task1", detach=True, ports={'8000/tcp': 8000})
     container = client_docker.containers.get(id_container.id)
     # container.reload()
     # print(container.ports)
-    time.sleep(10)
+    time.sleep(15)
     response = requests.post('http://localhost:8000/ejecutarTarea', json=task_params)
     container.stop()
     container.remove()
     return response.json()
     
 if __name__ == '__main__':
-    app.run()
+    app.run(host="0.0.0.0")
