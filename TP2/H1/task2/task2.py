@@ -2,12 +2,13 @@ from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
+# Esta tarea resta dos números
 @app.route("/ejecutarTarea", methods=['GET', 'POST'])
 def ejecutarTarea():
     task_params = request.get_json()
     print(task_params)
     response = {
-        'resultado': int(task_params['number1']) + int(task_params['number2'])
+        'resultado': int(task_params['number1']) - int(task_params['number2'])
     }
     response = jsonify(response)
     print(response)

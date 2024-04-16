@@ -50,41 +50,25 @@ privado en Docker Hub.
 
 
 """
-Tiene una operacion y los números que recibe, y concatena
-Ejemplo:
-suma: 3 + 4 + 1 = 8
-resta 3 - 4 - 1 = -2
-
-formato JSON tarea:
+JSON REQUEST:
 {
-    operacion: suma
-    argumentos: {
-        3,
-        4, 
-        1
-    }
+    image: ....
+    number1: 1
+    number2: 2
 }
-
-respuesta:
+RESPONSE:
 {
-    resultado: 8  --> (3 + 4 + 1)
+    resultado: 3  --> (1+2)
 }
-"""
-
-"""
-ok
 """
 
 @app.route("/getRemoteTask", methods=['GET', 'POST'])
 def ejecutarTareaRemota():
     task_params = request.get_json()
     print(task_params)
-
-    id_container = client_docker.containers.run("grupo4sdypp2024/tp2-h1-task1", detach=True, ports={'8000/tcp': 8000})
+    id_container = client_docker.containers.run(task_params['image'], detach=True, ports={'8000/tcp': 8000})
     container = client_docker.containers.get(id_container.id)
-    # container.reload()
-    # print(container.ports)
-    time.sleep(15)
+    time.sleep(15)  # Tiempo de espera para que se levante el container (Revisar si se puede hacer otra cosa)
     response = requests.post('http://localhost:8000/ejecutarTarea', json=task_params)
     container.stop()
     container.remove()

@@ -13,6 +13,8 @@ while ! docker info; do
 done
 
 docker pull grupo4sdypp2024/tp2-h1-task1
+docker pull grupo4sdypp2024/tp2-h1-task2
+docker pull grupo4sdypp2024/tp2-h1-task3
 
 python servidor.py &
 
