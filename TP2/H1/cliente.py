@@ -80,8 +80,9 @@ Ingrese el segundo numero:
     }
     headers = {'Content-Type': 'application/json'}
     json_data = json.dumps(data)
+    limpiar_consola()
+    print("Esto tardará de 15 a 20 segundos...")
     response = requests.post(url, data=json_data, headers=headers)
-
     print(response)
     print(response.text)
     input("Presione ENTER para continuar.")

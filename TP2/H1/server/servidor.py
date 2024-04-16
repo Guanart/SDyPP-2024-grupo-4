@@ -12,6 +12,11 @@ def ejecutarTareaRemota():
     print(task_params)
     id_container = client_docker.containers.run(task_params['image'], detach=True, ports={'8000/tcp': 8000})
     container = client_docker.containers.get(id_container.id)
+
+    while not container.status == 'running':
+        print("Esperando a que el contenedor esté en ejecución...")
+        time.sleep(3)  # Esperar 3 segundos antes de volver a verificar
+
     response = requests.post('http://localhost:8000/ejecutarTarea', json=task_params)
     container.stop()
     container.remove()
