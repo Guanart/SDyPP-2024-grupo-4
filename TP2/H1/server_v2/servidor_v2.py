@@ -17,10 +17,11 @@ def ejecutarTareaRemota():
         print("Esperando a que el contenedor esté en ejecución...")
         time.sleep(3)  # Esperar 3 segundos antes de volver a verificar
 
-    response = requests.post('http://localhost:8000/ejecutarTarea', json=task_params)
+    response = requests.post('http://34.138.195.122:8000/ejecutarTarea', json=task_params)
     container.stop()
     container.remove()
     return response.json()
     
 if __name__ == '__main__':
     app.run(host="0.0.0.0")
+
