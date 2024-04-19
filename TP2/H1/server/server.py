@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, request
 import docker
 import requests
 import time
@@ -13,6 +13,7 @@ def ejecutarTareaRemota():
     print(task_params)
     id_container = client_docker.containers.run(task_params['image'], detach=True, ports={'5000/tcp': 8022})
     container = client_docker.containers.get(id_container.id)
+
     time.sleep(3)
     while not container.status == 'running':
         print("Esperando a que el contenedor esté en ejecución...")
