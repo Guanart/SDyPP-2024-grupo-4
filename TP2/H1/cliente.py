@@ -40,7 +40,7 @@ def limpiar_consola():
 
 # Envio una tarea
 def enviarTarea(host,port,tareaActual):
-    if host=="" and port==0:
+    if host=="" or port==0:
         input("Por favor, ingrese la IP y el puerto del servidor. (presione ENTER)")
         return
     url = "http://"+str(host)+":"+str(port)+"/getRemoteTask"
@@ -117,7 +117,7 @@ def cambiarTarea():
     elif opcion == 2:
         tareaActual="resta"
     elif opcion == 3:
-        tareaActual="multiplicar"
+        tareaActual="multiplicacion"
     return tareaActual
 
 
