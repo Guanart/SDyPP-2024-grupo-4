@@ -3,4 +3,4 @@ id_rsa_example
 id_rsa_example.pub
 ejemplo_clase/
 **/*.ssh*
-**credentials.json**
+**/credentials.json**
