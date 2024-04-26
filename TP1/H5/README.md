@@ -7,4 +7,4 @@ Los mensajes se envían en formato JSON, se serializa al enviar y se deserializa
 
 La máquina virtual de Google ejecuta el comando: ```docker compose up```, ejecutando el archivo ```docker-compose.yml``` de esta carpeta. De esta manera ambos contenedores se encuentran en la misma red, por lo que los dos cliente_servidor se pueden comunicar.
 
-
+Para ver la ejecución, acceda a los logs de los containers con el comando ```sudo docker logs <id_container_h5>```
