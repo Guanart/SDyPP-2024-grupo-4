@@ -1,20 +1,6 @@
 # Cloud Computing: Teórica
 
-* Realice un análisis FODA de la implementación de Cloud Computing.
-
-
-
-* ¿Cómo abordaría un proyecto en la nube desde 0? ¿Cómo justificaría su uso? 
-* Antes de ir a una plataforma en la nube, ¿Cuáles son las cosas esenciales que tienen que ser tenidas en cuenta por sus usuarios?
-* ¿Cómo son los costos y el modelo de pago? ¿Cómo estimo mis gastos mensuales/anuales?
-* ¿Cuánto tiempo hace que AWS, Azure y Google Cloud proveen sus servicios en la nube? ¿Considera que es tiempo suficiente para confiar en los procesos y servicios de una empresa? 
-* ¿Cuáles son los proveedores más grandes? ¿Qué hace que ellos sigan siendo cada vez más grandes? ¿Qué los diferencia del siguiente nivel inferior?
-* ¿Qué sucede cuando la Nube se cae? ¿Cómo me notifico cuando eso ocurre? ¿Mis servicios se reinician automáticamente o tengo que estar pendiente para hacerlo de manera manual? ¿Qué son los “Outages” de los proveedores Cloud?
-* ¿El proveedor ofrece garantías de QoS? ¿Provee mecanismos de balanceo de carga o garantía de disponibilidad? ¿Cómo se implementa la redundancia dentro del entorno?
-
-
-
-**Análisis FODA de la implementación de Cloud Computing:**
+### Realice un análisis FODA de la implementación de Cloud Computing.
 
 - **Fortalezas:**
   - Escalabilidad: Permite escalar recursos de forma rápida y eficiente según las necesidades.
@@ -34,57 +20,56 @@
   - Privacidad: Existe la preocupación por la privacidad de los datos almacenados en la nube.
   - Dependencia del proveedor: Puede surgir dependencia del proveedor de servicios en la nube, lo que limita la flexibilidad.
 
-**Abordaje de un proyecto en la nube desde 0:**
+### ¿Cómo abordaría un proyecto en la nube desde 0? ¿Cómo justificaría su uso? 
 
-- Definir los objetivos y requerimientos del proyecto.
-- Seleccionar el proveedor de servicios en la nube.
-- Diseñar la arquitectura de la solución en la nube.
-- Implementar la solución en la nube.
-- Monitorear y gestionar la solución en la nube de forma continua.
+Primero definiría el proveedor de servicios en la nube, por costos, rendimientos o herramientas que nos puede proveer a la hora de desarrollar la aplicación.
 
-**Justificación del uso de la nube:**
+Se diseña la arquitectura de la aplicación en la nube, para luego implementarla.
 
-- Reducción de costos: Elimina la necesidad de invertir en infraestructura física.
+Monitorear y gestionar la solución en la nube de forma continua.
+
+El hecho de usar la nube en la realizacion de un proyecto nos beneficia en los siguientes puntos:
+- Reducción de costos: Elimina la necesidad de invertir en infraestructura física para el despliegue.
+- Disponibilidad de IPs: Las IPv4 públicas actualmente son de dificil acceso, pero los proveedores de la nube nos dan la posibilidad de tener una IPv4 pública asociada a nuestras instancias.
 - Escalabilidad: Permite escalar recursos según las necesidades del proyecto.
 - Flexibilidad: Ofrece una variedad de servicios y modelos de implementación.
 - Innovación: Facilita la implementación de nuevas tecnologías y soluciones.
 
-**Cosas esenciales a tener en cuenta antes de ir a una plataforma en la nube:**
+### Antes de ir a una plataforma en la nube, ¿Cuáles son las cosas esenciales que tienen que ser tenidas en cuenta por sus usuarios?
 
 - Seguridad: Asegurarse de que la plataforma cumpla con los estándares de seguridad.
 - Costos: Evaluar los costos y el modelo de pago de la plataforma.
 - Disponibilidad: Verificar la disponibilidad y el tiempo de actividad de la plataforma.
 - Soporte: Asegurarse de que la plataforma ofrezca un buen servicio de soporte técnico.
 
-**Costos y modelo de pago:**
+### ¿Cómo son los costos y el modelo de pago? ¿Cómo estimo mis gastos mensuales/anuales?
 
-- Los costos de la nube varían según el proveedor y los servicios utilizados.
-- El modelo de pago puede ser por uso (pay-as-you-go), por suscripción mensual o anual, o una combinación de ambos.
+Los costos de la nube varían según el proveedor y los servicios utilizados: es decir, si nosotros adquirimos un procesador de mayor potencia, mayor cantidad de memoria RAM, incluso el uso de tarjetas graficas, aumentaremos el coste del servicio. Generalmente los proveedores nos dan calculadoras para poder calcular correctamente cuanto dinero nos conllevan las diferentes opciones que elegimos.
 
-**Estimación de gastos mensuales/anuales:**
+Por otro lado, el modelo de pago puede ser por uso (pay-as-you-go), por suscripción mensual o anual, o una combinación de ambos.
 
-- Para estimar los gastos, es necesario conocer los precios de los servicios utilizados y prever el uso esperado de los mismos.
-- Los proveedores de servicios en la nube ofrecen calculadoras de costos que pueden ayudar en esta estimación.
+### ¿Cuánto tiempo hace que AWS, Azure y Google Cloud proveen sus servicios en la nube? ¿Considera que es tiempo suficiente para confiar en los procesos y servicios de una empresa? 
 
-**Tiempo que llevan AWS, Azure y Google Cloud:**
+AWS fue lanzado en 2006, Azure en 2010 y Google Cloud en 2008.
+Estos proveedores han estado ofreciendo servicios en la nube durante más de una década, lo que nos sugiere que han acumulado experiencia y confianza en la industria.
 
-- AWS fue lanzado en 2006, Azure en 2010 y Google Cloud en 2008.
-- Estos proveedores han estado ofreciendo servicios en la nube durante más de una década, lo que sugiere que han acumulado experiencia y confianza en la industria.
+### ¿Cuáles son los proveedores más grandes? ¿Qué hace que ellos sigan siendo cada vez más grandes? ¿Qué los diferencia del siguiente nivel inferior?
 
-**Proveedores más grandes y diferenciación:**
+Los proveedores más grandes son los antes mencionados AWS, Azure y Google Cloud.
+Su tamaño se debe a su capacidad para ofrecer una amplia gama de servicios, una infraestructura global dando soporte a gran cantidad de tecnologías y soluciones, y un alto nivel de fiabilidad y seguridad.
 
-- Los proveedores más grandes son AWS, Azure y Google Cloud.
-- Su tamaño se debe a su capacidad para ofrecer una amplia gama de servicios, una infraestructura global y un alto nivel de fiabilidad y seguridad.
+### ¿Qué sucede cuando la Nube se cae? ¿Cómo me notifico cuando eso ocurre? ¿Mis servicios se reinician automáticamente o tengo que estar pendiente para hacerlo de manera manual? ¿Qué son los “Outages” de los proveedores Cloud?
 
-**Qué sucede cuando la nube se cae:**
+Un "outage" en la nube es un período de tiempo durante el cual los servicios en la nube no están disponibles.
 
-- Un "outage" en la nube es un período de tiempo durante el cual los servicios en la nube no están disponibles.
-- Los proveedores de servicios en la nube suelen notificar a sus usuarios sobre los "outages" a través de sus canales de comunicación.
-- Algunos servicios en la nube pueden reiniciarse automáticamente después de un "outage", mientras que otros pueden requerir intervención manual.
+Los proveedores de servicios en la nube suelen notificar a sus usuarios sobre los "outages" a través de sus canales de comunicación.
 
-**Garantías de QoS, balanceo de carga y redundancia:**
+Algunos servicios en la nube pueden reiniciarse automáticamente después de un "outage", mientras que otros pueden requerir intervención manual.
 
-- Los proveedores de servicios en la nube suelen ofrecer garantías de calidad de servicio (QoS) en términos de disponibilidad y rendimiento.
-- Ofrecen mecanismos de balanceo de carga para distribuir el tráfico de manera equitativa entre los servidores.
-- Implementan redundancia para garantizar la disponibilidad de los servicios en caso de fallos.
+### ¿El proveedor ofrece garantías de QoS? ¿Provee mecanismos de balanceo de carga o garantía de disponibilidad? ¿Cómo se implementa la redundancia dentro del entorno?
 
+Los proveedores de servicios en la nube suelen ofrecer garantías de calidad de servicio (QoS) en términos de disponibilidad y rendimiento.
+
+Ofrecen mecanismos de balanceo de carga para distribuir el tráfico de manera equitativa entre los servidores.
+
+Implementan redundancia para garantizar la disponibilidad de los servicios en caso de fallos.
