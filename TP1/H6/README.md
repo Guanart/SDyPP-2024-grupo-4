@@ -10,4 +10,4 @@ Los mensajes se envían en formato JSON, se serializa al enviar y se deserializa
 
 La máquina virtual de Google ejecuta el comando: ```docker compose up```, ejecutando el archivo ```docker-compose.yml``` de esta carpeta. De esta manera todos los contenedores se encuentran en la misma red, por lo que los cliente_servidor se pueden comunicar hacia el servidor_contactos.
 
-Para ver el flujo del programa, se encuentran los archivos .log, ya que no se podían visualizar desde la consola los logs de los programas.
+Para ver el flujo del programa, acceda a los logs de los containers con el comando ```sudo docker logs <id_container_h6>```
