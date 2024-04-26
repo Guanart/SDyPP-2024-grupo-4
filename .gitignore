@@ -4,6 +4,6 @@ id_rsa_example.pub
 ejemplo_clase/
 **/*.ssh*
 **/credentials.json**
-TP3/H1/.teterraform.lock.hcl
+TP3/H1/.terraform.lock.hcl
 TP3/H1/terraform.tfstate
 TP3/H1/terraform.tfstate.backup
