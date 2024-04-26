@@ -22,15 +22,6 @@ IMAGES=(
   "grupo4sdypp2024/tp2-h1-task2"
   "grupo4sdypp2024/tp2-h1-task3"
   "grupo4sdypp2024/tp2-h1-server"
-  "grupo4sdypp2024/tp1-h1"
-  "grupo4sdypp2024/tp1-h2"
-  "grupo4sdypp2024/tp1-h3"
-  "grupo4sdypp2024/tp1-h4"
-  "grupo4sdypp2024/tp1-h5"
-  "grupo4sdypp2024/tp1-h6-servidor_contactos"
-  "grupo4sdypp2024/tp1-h6-cliente_servidor"
-  "grupo4sdypp2024/tp1-h7-servidor_inscripciones"
-  "grupo4sdypp2024/tp1-h7-cliente_servidor"
 )
 
 for IMAGE in "${IMAGES[@]}"
@@ -40,9 +31,5 @@ done
 
 git clone https://github.com/Guanart/SDyPP-2024-grupo-4.git
 cd SDyPP-2024-grupo-4
-sudo find TP1 -mindepth 2 -type f -name "docker-compose.yml" -execdir docker compose up -d \;
 
-sudo docker run -p 8001:8001 --name tp1-h1 grupo4sdypp2024/tp1-h1
-sudo docker run -p 8002:8002 --name tp1-h2 grupo4sdypp2024/tp1-h2
-sudo docker run -p 8003:8003 --name tp1-h3 grupo4sdypp2024/tp1-h3
-sudo docker run -p 8021:5000 --name tp2-h1 grupo4sdypp2024/tp2-h1-server
+sudo docker run -d -p 8021:5000 --name tp2-h1-server_tareas -v /var/run/docker.sock:/var/run/docker.sock grupo4sdypp2024/tp2-h1-server_tarea

@@ -11,8 +11,8 @@ gcloud compute instances create vm1 \
     --tags=http-server \
     --metadata="ssh-keys=:$(cat ../id_rsa_example.pub)" \
     --metadata-from-file user-data=script.sh \
-    --zone="us-east1-b" \
+    --zone="us-east1-d" \
     --address=instance-public-ip
 
 # gcloud compute ssh vm1 --zone=us-east1-b --ssh-key-file=../id_rsa_example --command "cat /var/log/cloud-init-output.log"
-gcloud compute ssh --zone "us-east1-b" "vm1" --project "sharp-technique-416800"
+gcloud compute ssh --zone "us-east1-d" "tp2-h1-server" --project "sharp-technique-416800"
