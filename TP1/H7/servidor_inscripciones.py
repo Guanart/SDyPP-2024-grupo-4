@@ -3,7 +3,6 @@ import asyncio
 import json
 import time
 import sys
-import logging
 
 class ServidorContactos:
     def __init__(self, host, port):
@@ -20,7 +19,6 @@ class ServidorContactos:
     async def start(self):
         self.server = await asyncio.start_server(self.handle_client, self.host, self.port)
         print(f"Servidor de inscripciones escuchando en {self.host}:{self.port}...")
-        logging.info(f"Servidor de inscripciones escuchando en {self.host}:{self.port}...")
         async with self.server:
             await self.start_window_timer()  
 
@@ -33,19 +31,14 @@ class ServidorContactos:
                 self.ventana_actual = self.ventana_siguiente
                 self.ventana_siguiente = []
                 print("Inició un nuevo minuto")
-                logging.info("Inició un nuevo minuto")
                 print(f"Ventana actual: {self.ventana_actual} ")
-                logging.info(f"Ventana actual: {self.ventana_actual} ")
                 print("------------------------------------------------")
-                logging.info("------------------------------------------------")
                 print("Se ha iniciado una nueva ventana de inscripciones.")
-                logging.info("Se ha iniciado una nueva ventana de inscripciones.")
             await asyncio.sleep(1)  # Espera un segundo antes de revisar nuevamente
 
     async def handle_client(self, reader, writer):
         addr = writer.get_extra_info('peername')
         print(f"Conexión establecida desde: {addr}")
-        logging.info(f"Conexión establecida desde: {addr}")
 
         # Lee el buffer
         data = await reader.read(1024)
@@ -87,12 +80,12 @@ class ServidorContactos:
             with open("inscripciones.json", 'r') as archivo:
                 objetos_existentes = json.load(archivo)
         except FileNotFoundError:
-            logging.error("Archivo inscripciones.json no encontrado")
+            print("Archivo inscripciones.json no encontrado")
         except Exception as e:
-            logging.error(e)
+            print(e)
 
         if objetos_existentes is None:
-            logging.info("El archivo está vacío. Creando inscripciones.json")
+            print("El archivo está vacío. Creando inscripciones.json")
             objetos_existentes = []
 
         current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
@@ -105,6 +98,4 @@ async def main():
     await server.start()
 
 if __name__ == "__main__":
-    logging.basicConfig(filename='servidor_inscripciones.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    logging.info("\n--------------------------------------------------------------------------------")
     asyncio.run(main())

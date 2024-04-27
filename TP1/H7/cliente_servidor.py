@@ -2,7 +2,6 @@ import json
 import sys
 import random
 import asyncio
-import logging
 
 class Servidor:
     def __init__(self, host, port):
@@ -18,14 +17,12 @@ class Servidor:
     async def start(self):
         self.server = await asyncio.start_server(self.handle_client, self.host, self.port)
         print(f"SERVIDOR: Servidor escuchando en {self.host}:{self.port}...")
-        logging.info(f"SERVIDOR: Servidor escuchando en {self.host}:{self.port}...")
         async with self.server:
             await self.server.serve_forever()
 
     async def handle_client(self, reader, writer):
         addr = writer.get_extra_info('peername')
         print(f"SERVIDOR: Conexión establecida desde: {addr}")
-        logging.info(f"SERVIDOR: Conexión establecida desde: {addr}")
         print()
 
         data = await reader.read(1024)
@@ -76,7 +73,6 @@ class Cliente:
             data = await reader.read(1024)
             response = data.decode()
             print(f"CLIENTE: Respuesta del servidor de inscripciones: {response}")
-            logging.info(f"CLIENTE: Respuesta del servidor de inscripciones: {response}")
             
             writer.close()
             await writer.wait_closed()
@@ -89,8 +85,6 @@ class Cliente:
         except Exception as e:
             print("CLIENTE: Error al conectar con el servidor de inscripciones")
             print(e)
-            logging.info("CLIENTE: Error al conectar con el servidor de inscripciones")
-            logging.error(e)
 
     async def consultar(self):
         try:
@@ -102,27 +96,23 @@ class Cliente:
             writer.write(message_json.encode())
             await writer.drain()
             print("CLIENTE: Consultando los inscriptos")
-            logging.info("CLIENTE: Consultando los inscriptos")
             
             data = await reader.read(1024)
             response = data.decode()
             print()
             print(f"CLIENTE: Inscripciones actuales: {json.loads(response)["inscriptos"]}")
-            logging.info(f"CLIENTE: Inscripciones actuales: {json.loads(response)["inscriptos"]}")
             
 
             writer.close()
             await writer.wait_closed()
         except Exception as e:
             print("CLIENTE: Error al conectar con el servidor de inscripciones")
-            logging.info("CLIENTE: Error al conectar con el servidor de inscripciones")
-            logging.error(e)
+            print(e)
 
 async def main():
     argumentos = sys.argv
     if len(argumentos) != 2:
         print("Uso: python cliente_servidor.py <servidor_contactos_ip:servidor_contactos_puerto>")
-        logging.info("Uso: python cliente_servidor.py <servidor_contactos_ip:servidor_contactos_puerto>")
         sys.exit(1)
     argumentos = argumentos[1].split(":")
     
@@ -136,6 +126,4 @@ async def main():
     await asyncio.gather(server_task, cliente_task)
 
 if __name__ == "__main__":
-    logging.basicConfig(filename='cliente_servidor.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    logging.info("\n--------------------------------------------------------------------------------")
     asyncio.run(main())

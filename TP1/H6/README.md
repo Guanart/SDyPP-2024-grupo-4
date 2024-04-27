@@ -8,6 +8,7 @@ Los cliente_servidor se conectan al servidor_contactos y le indican en que puert
 
 Los mensajes se envían en formato JSON, se serializa al enviar y se deserializa al recibir. 
 
-La máquina virtual de Google ejecuta el comando: ```docker compose up```, ejecutando el archivo ```docker-compose.yml``` de esta carpeta. De esta manera todos los contenedores se encuentran en la misma red, por lo que los cliente_servidor se pueden comunicar hacia el servidor_contactos.
+Ya que el ejercicio se encuentra hecho en una red de Docker, se necesita probar de forma local, las instrucciones son las siguientes:
 
-Para ver el flujo del programa, acceda a los logs de los containers con el comando ```sudo docker logs <id_container_h6>```
+1. Ejecutar ```docker build -t grupo4sdypp2024/tp1-h6-servidor_contactos -f servidor_contactos.dockerfile .``` y ```docker build -t grupo4sdypp2024/tp1-h6-cliente_servidor -f cliente_servidor.``` para crear las imágenes, o descargarlas de Docker Hub mediante los comandos ```docker pull grupo4sdypp2024/tp1-h6-servidor_contactos``` y ```docker pull grupo4sdypp2024/tp1-h6-cliente_servidor```.
+2. Ejecutar ```docker compose up```, de esta manera docker ejecuta el archivo ```docker-compose.yml```, en este se generan tres cliente-servidor y un servidor de contactos.
