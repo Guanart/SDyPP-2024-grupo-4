@@ -3,6 +3,7 @@
 
 El cliente_servidor recibe por argumentos la IP y el puerto en el que debe escuchar el servidor, y la IP y el puerto del servidor al que se debe conectar.
 
-La máquina virtual de Google ejecuta el comando: ```docker compose up```, ejecutando el archivo ```docker-compose.yml``` de esta carpeta. De esta manera ambos contenedores se encuentran en la misma red, por lo que los dos cliente_servidor se pueden comunicar.
+Ya que el ejercicio se encuentra hecho en una red de Docker, se necesita probar de forma local, las instrucciones son las siguientes:
 
-Para ver la ejecución, acceda a los logs de los containers con el comando ```sudo docker logs <id_container_h4>```
+1. Ejecutar ```docker build -t grupo4sdypp2024/tp1-h4 .``` para crear la imagen, o descargarla de Docker Hub mediante el comando ```docker pull grupo4sdypp2024/tp1-h4```.
+2. Ejecutar ```docker compose up```, de esta manera docker ejecuta el archivo ```docker-compose.yml```, en este se generan dos cliente-servidor que se saludan mutuamente y devuelven el saludo.

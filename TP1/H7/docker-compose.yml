@@ -6,9 +6,6 @@ services:
     container_name: hit7_servidor_inscripciones
     networks:
       - my_network
-    volumes:
-      - ./inscripciones.json:/usr/local/src/pythonapp/inscripciones.json
-      - ./servidor_inscripciones.log:/usr/local/src/pythonapp/servidor_inscripciones.log
     environment:
       - PYTHONUNBUFFERED=1
 
@@ -20,8 +17,6 @@ services:
     command: ["hit7_servidor_inscripciones:8000"]
     depends_on:
       - servidor_inscripciones
-    volumes:
-      - ./cliente_servidor1.log:/usr/local/src/pythonapp/cliente_servidor.log
     environment:
       - PYTHONUNBUFFERED=1
 
@@ -33,8 +28,6 @@ services:
     command: ["hit7_servidor_inscripciones:8000"]
     depends_on:
       - servidor_inscripciones
-    volumes:
-      - ./cliente_servidor2.log:/usr/local/src/pythonapp/cliente_servidor.log
     environment:
       - PYTHONUNBUFFERED=1
 
