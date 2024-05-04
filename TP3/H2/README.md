@@ -6,3 +6,5 @@ Conéctese por ssh y haga un wget de un archivo grande (por ejemplo ISO de ubunt
 ### Respuesta:
 La descarga de la imagen desde una computadora personal tardó aproximadamente 30 minutos, mientras que la descarga de la imagen desde la instancia virtual tardó aproximadamente 2 minutos.
 Esto se debe a que los proveedores de servicios en la nube, como Google Cloud Compute, tienen conexiones de red de alta velocidad. Pueden transferir los datos a velocidades mucho más altas que las conexiones de red domésticas típicas.
+
+###### Esta carpeta solo contiene la respuesta a la pregunta teórica. En los archivos de H1 se encuentra lo solicitado en este HIT.
