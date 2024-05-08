@@ -22,14 +22,14 @@ def dividir_imagen(imagen, num_filas, num_columnas, id):
             _, parte_encoded = cv2.imencode('.jpg', parte)
             parte_base64 = base64.b64encode(parte_encoded).decode('utf-8')
 
-            # Incremento contador
-            contador += 1
-
             # Se encola el mensaje a la cola "imagenes" de RabbitMQ
             mensaje = {'id': id, 'nro': contador, 'image_data': parte_base64}
             mensaje_json = json.dumps(mensaje)
             channel.basic_publish(exchange='', routing_key='imagenes', body=mensaje_json)
             print(f"Mensaje encolado: {mensaje}");
+            
+            # Incremento contador
+            contador += 1
     connection.close()
 
 app = Flask(__name__)
