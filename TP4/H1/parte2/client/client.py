@@ -4,7 +4,7 @@ import pathlib
 url = "http://localhost:5000/sobel"
 
 
-archivo_imagen = str(pathlib.Path(__file__).parent.resolve()) + '/gato.jpeg'
+archivo_imagen = str(pathlib.Path(__file__).parent.resolve()) + '/gato.jpg'
 
 # Abrir el archivo de la imagen en modo binario
 with open(archivo_imagen, 'rb') as archivo:

@@ -57,7 +57,7 @@ def reconstruir_imagen(partes: list, num_filas: int, num_columnas: int) -> np.nd
     return imagen_reconstruida
 
 if __name__ == '__main__':
-    id = "34fd4bfc-3fd9-4e5a-9984-ffa19693b5a7"  # Hardcodeado para probar
+    id = "b3ce3eda-481f-4df3-a9bd-d7a55f87eea2"  # Hardcodeado para probar
     filas: int = 2
     columnas: int = 2
     partes = buscar_partes(filas * columnas, id)

@@ -32,6 +32,7 @@ def main():
         # Decodificar la imagen Base64 en datos binarios
         imagen_bytes = base64.b64decode(mensaje.get("image_data"))
 
+
         # APLICAR SOBEL:
         # Obtengo el formato de imagen de OpenCV en base a los bytes de la imagen (para poder operar el Sobel)
         imagen_opencv = cv2.imdecode(np.frombuffer(imagen_bytes, dtype=np.uint8), cv2.IMREAD_COLOR)
@@ -50,23 +51,27 @@ def main():
         parte_sobel = np.uint8(255 * sobel_combined / np.max(sobel_combined))
 
         # Guardar imagen (con formato de OpenCV)
-        cv2.imwrite("parte" + id + "_sobel.jpg", parte_sobel)
-        """
-        # Guardar imagen (con bytes)
-        with open(f"./{mensaje.get("id")}_{mensaje.get("nro")}.jpg", 'wb') as f:
-            f.write(imagen_bytes)
-        """
-            
-        # Guardar en redis: {clave: id+_nro, valor: imagen_bytes}
+        print(f"Guardando parte {nro_parte} como sobel..." )
+        cv2.imwrite("parte" + str(nro_parte) + "_sobel.jpg", parte_sobel)
+        print("Guardado sobel")
 
         # Guardar imagen
+        print(f"Guardando parte {nro_parte} normal..." )
         with open(f"./{mensaje.get('id')}_{mensaje.get('nro')}.jpg", 'wb') as f:
             f.write(imagen_bytes)
+        print("Guardado normal")
+
+        # Codificar la parte en formato JPEG
+        _, parte_sobel_encoded = cv2.imencode('.jpg', parte_sobel)
+        # Convertir los datos codificados a bytes
+        parte_sobel_bytes = parte_sobel_encoded.tobytes()
+
 
         # Guardar en redis: {clave: id+nro_parte, valor: imagen_bytes}
         clave = id + "_" + str(nro_parte)
-        redis.set(clave, imagen_bytes)
-        print(f"WORKER GUARDÓ: {clave}")
+        #redis.set(clave, imagen_bytes)     # Guardo la parte normal en Redis
+        redis.set(clave, parte_sobel_bytes)   # Guardo la parte de sobel en Redis
+        print(f"WORKER GUARDÓ EN REDIS: {clave}")
 
     # Suscribirse a la cola <imagenes>
     channel.basic_consume(queue='imagenes',
