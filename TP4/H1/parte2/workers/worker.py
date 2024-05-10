@@ -1,4 +1,5 @@
-import pika, sys, os, json, base64, redis
+import numpy as np
+import pika, sys, os, json, base64, redis, cv2
 
 def main():
     # Conexión con RabbitMQ
@@ -20,10 +21,32 @@ def main():
         # Decodificar la imagen Base64 en datos binarios
         imagen_bytes = base64.b64decode(mensaje.get("image_data"))
 
-        # Guardar imagen
+
+        # APLICAR SOBEL:
+        # Obtengo el formato de imagen de OpenCV en base a los bytes de la imagen (para poder operar el Sobel)
+        imagen_opencv = cv2.imdecode(np.frombuffer(imagen_bytes, dtype=np.uint8), cv2.IMREAD_COLOR)
+
+        # Convertir la imagen a escala de grises
+        gray = cv2.cvtColor(imagen_opencv, cv2.COLOR_BGR2GRAY)
+
+        # Aplicar el filtro Sobel
+        sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=3)
+        sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=3)
+
+        # Combinar los resultados de los filtros Sobel
+        sobel_combined = cv2.magnitude(sobelx, sobely)
+
+        # Normalizar los valores entre 0 y 255
+        parte_sobel = np.uint8(255 * sobel_combined / np.max(sobel_combined))
+
+        # Guardar imagen (con formato de OpenCV)
+        cv2.imwrite("parte" + id + "_sobel.jpg", parte_sobel)
+        """
+        # Guardar imagen (con bytes)
         with open(f"./{mensaje.get("id")}_{mensaje.get("nro")}.jpg", 'wb') as f:
             f.write(imagen_bytes)
-
+        """
+            
         # Guardar en redis: {clave: id+_nro, valor: imagen_bytes}
         clave = id + "_" + str(nro_parte)
         r.set(clave, imagen_bytes)
@@ -52,7 +75,7 @@ if __name__ == '__main__':
 # docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
 
 # Levantar RabbitMQ en docker:
-# docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.13-management
+# docker run -d -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.13-management
 
 """ Conectarse de forma segura a Redis:
 r = redis.Redis(
