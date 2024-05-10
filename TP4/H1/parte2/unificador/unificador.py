@@ -57,7 +57,7 @@ def reconstruir_imagen(partes: list, num_filas: int, num_columnas: int) -> np.nd
     return imagen_reconstruida
 
 if __name__ == '__main__':
-    id = "892d05b5-7110-4b2b-9432-7da4637ab6fa"  # Hardcodeado para probar
+    id = "34fd4bfc-3fd9-4e5a-9984-ffa19693b5a7"  # Hardcodeado para probar
     filas: int = 2
     columnas: int = 2
     partes = buscar_partes(filas * columnas, id)
@@ -65,5 +65,5 @@ if __name__ == '__main__':
         print("Todavía no están terminadas todas las partes")
     else:
         imagen_reconstruida = reconstruir_imagen(partes, filas, columnas)
-        cv2.imwrite("imagen_reconstruida.jpg", imagen_reconstruida)
+        cv2.imwrite(f"{id}.jpg", imagen_reconstruida)
         print(f"Imagen reconstruida guardada.")

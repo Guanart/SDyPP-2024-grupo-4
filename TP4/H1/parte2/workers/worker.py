@@ -38,6 +38,7 @@ def main():
         # Guardar en redis: {clave: id+nro_parte, valor: imagen_bytes}
         clave = id + "_" + str(nro_parte)
         redis.set(clave, imagen_bytes)
+        print(f"WORKER GUARDÓ: {clave}")
 
     # Suscribirse a la cola <imagenes>
     channel.basic_consume(queue='imagenes',
