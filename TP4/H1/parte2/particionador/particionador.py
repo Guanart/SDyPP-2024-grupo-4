@@ -2,6 +2,18 @@ import pika, sys, cv2, threading, base64
 from flask import Flask, json, request 
 
 def dividir_imagen(imagen, num_filas, num_columnas, id):
+    """
+    Divide una imagen en partes más pequeñas y las encola en una cola RabbitMQ.
+
+    Args:
+        imagen (numpy.ndarray): La imagen a dividir.
+        num_filas (int): El número de filas en las que se dividirá la imagen.
+        num_columnas (int): El número de columnas en las que se dividirá la imagen.
+        id (str): El identificador de la imagen.
+
+    Returns:
+        None
+    """
     alto, ancho, _ = imagen.shape   # Obtener las dimensiones de la imagen
     alto_parte = alto // num_filas  # Obtener el alto de cada parte
     ancho_parte = ancho // num_columnas # Obtener el ancho de cada parte
@@ -26,7 +38,7 @@ def dividir_imagen(imagen, num_filas, num_columnas, id):
             mensaje = {'id': id, 'nro': contador, 'image_data': parte_base64}
             mensaje_json = json.dumps(mensaje)
             channel.basic_publish(exchange='', routing_key='imagenes', body=mensaje_json)
-            print(f"Mensaje encolado: {mensaje}");
+            print(f"Mensaje encolado: {mensaje}")
             
             # Incremento contador
             contador += 1
@@ -34,20 +46,35 @@ def dividir_imagen(imagen, num_filas, num_columnas, id):
 
 app = Flask(__name__)
 
-@app.route('/', methods=['POST'])
+@app.route('/particionar', methods=['POST'])
 def recibir_imagen():
+    """
+    Endpoint para recibir una imagen y dividirla en 4 partes.
+
+    Returns:
+        str: Un mensaje de éxito si la imagen se recibe correctamente.
+        int: Código de estado HTTP 200 si es exitoso.
+        str: Un mensaje de error si ocurre una excepción.
+        int: Código de estado HTTP 500 si ocurre una excepción.
+    """
     try:
         # Obtener la imagen del cuerpo de la solicitud
         imagen = request.files["imagen"]
         id = request.form["id"]
 
-        # Guardar la imagen
+        # Guardar la imagen -> se debería guardar en la carpeta /tmp cuando dockericemos
         with open("./imagen_" + id + "_particionador" + ".jpg", 'wb') as f:
             f.write(imagen.read())
         
         # Iniciar el proceso de división de la imagen en 4 partes en un hilo separado
         archivo_imagen = cv2.imread("imagen_" + id + "_particionador" + ".jpg")
-        t = threading.Thread(target=dividir_imagen, args=(archivo_imagen, 2, 2, id))
+        t = threading.Thread(target=dividir_imagen, kwargs={
+                'imagen': archivo_imagen,
+                'num_filas': 2,
+                'num_columnas': 2,
+                'id': id
+            }
+        )
         t.start()
 
         return "Imagen recibida", 200

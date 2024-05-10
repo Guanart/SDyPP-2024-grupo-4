@@ -1,6 +1,17 @@
-import pika, sys, os, json, base64, redis
+import pika, sys, os, json, base64
+from redis import Redis
 
 def main():
+    """
+    Función principal que se conecta a RabbitMQ, declara una cola y consume mensajes de la cola.
+
+    Esta función establece una conexión con RabbitMQ, declara una cola llamada 'imagenes' y configura una función de
+    devolución de llamada para manejar los mensajes entrantes. La función de callback recibe un mensaje,
+    extrae los datos relevantes, decodifica una imagen en formato Base64, guarda la imagen en disco y la almacena en Redis.
+
+    La función comienza a consumir mensajes de la cola 'imagenes' y espera mensajes indefinidamente hasta que se interrumpa
+    presionando CTRL+C.
+    """
     # Conexión con RabbitMQ
     connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
     channel = connection.channel()
@@ -14,19 +25,19 @@ def main():
         print(f"WORKER RECIBIÓ: {mensaje}")
 
         # Obtener datos:
-        id = mensaje.get("id") # Str
-        nro_parte = mensaje.get("nro") # Int
+        id: str = mensaje.get("id")
+        nro_parte: int = mensaje.get("nro")
 
         # Decodificar la imagen Base64 en datos binarios
         imagen_bytes = base64.b64decode(mensaje.get("image_data"))
 
         # Guardar imagen
-        with open(f"./{mensaje.get("id")}_{mensaje.get("nro")}.jpg", 'wb') as f:
+        with open(f"./{mensaje.get('id')}_{mensaje.get('nro')}.jpg", 'wb') as f:
             f.write(imagen_bytes)
 
-        # Guardar en redis: {clave: id+_nro, valor: imagen_bytes}
+        # Guardar en redis: {clave: id+nro_parte, valor: imagen_bytes}
         clave = id + "_" + str(nro_parte)
-        r.set(clave, imagen_bytes)
+        redis.set(clave, imagen_bytes)
 
     # Suscribirse a la cola <imagenes>
     channel.basic_consume(queue='imagenes',
@@ -38,7 +49,7 @@ def main():
 
 if __name__ == '__main__':
     try:
-        r = redis.Redis(host='localhost', port=6379, decode_responses=True)
+        redis = Redis(host='localhost', port=6379, decode_responses=True)
         main()
     except KeyboardInterrupt:
         print('Interrupted')
@@ -46,13 +57,6 @@ if __name__ == '__main__':
             sys.exit(0)
         except SystemExit:
             os._exit(0)
-
-
-# Levantar Redis en docker:
-# docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
-
-# Levantar RabbitMQ en docker:
-# docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.13-management
 
 """ Conectarse de forma segura a Redis:
 r = redis.Redis(

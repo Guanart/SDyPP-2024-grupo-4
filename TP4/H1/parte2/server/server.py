@@ -7,8 +7,24 @@ def es_imagen_jpg(data):
     # Verificar que son los primeros bytes de un archivo JPEG/JPG
     return data[:2].lower() == b'\xff\xd8'
 
+def particionar(imagen_data, id):
+    url = "http://localhost:5001/particionar" # Arreglar
+    response = requests.post(url, files={"imagen": imagen_data}, data={"id": id})
+    return response.status_code
+
 @app.route('/sobel', methods=['POST'])
 def recibir_imagen():
+    """
+    Función que recibe una imagen en formato JPG a través de una solicitud POST.
+    La imagen se guarda en el servidor con un ID único y se llama al servidor particionador.
+    Si todo es exitoso, se retorna el ID de la imagen guardada.
+
+    Returns:
+        str: ID de la imagen guardada en el servidor.
+
+    Raises:
+        str: Mensaje de error si ocurre alguna excepción.
+    """
     try:
         # Obtener la imagen del cuerpo de la solicitud
         imagen = request.data
@@ -30,11 +46,5 @@ def recibir_imagen():
     except Exception as e:
         return str(e), 500
     
-
-def particionar(imagen_data, id):
-    url = "http://localhost:5001/" # Arreglar
-    response = requests.post(url, files={"imagen": imagen_data}, data={"id": id})
-    return response.status_code
-
 if __name__ == '__main__':
     app.run()
