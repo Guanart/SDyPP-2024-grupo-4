@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobel</title>
+    <link type="text/css" rel="stylesheet" href="http://example.com/image-uploader.min.css">
+    <link rel="stylesheet" href="https://christianbayer.github.io/image-uploader/dist/image-uploader.min.css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Lato:300,700|Montserrat:300,400,500,600,700|Source+Code+Pro&amp;display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <form action="http://localhost:5000/sobel" method="POST" name="imagen" id="imagen" enctype="multipart/form-data"></form>
+        <div class="input-field">
+            <label class="active">Photos</label>
+            <div class="input-images-1" style="padding-top: .5rem;">
+                <div class="input-images"></div>
+            </div>
+        </div>
+        <button>Submit and display data</button>
+    </form>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript"
+        src="https://christianbayer.github.io/image-uploader/dist/image-uploader.min.js"></script>
+    <script type="text/javascript">
+        $('.input-images').imageUploader();
+    </script>
+</body>
+
+</html>

@@ -27,7 +27,7 @@ def recibir_imagen():
     """
     try:
         # Obtener la imagen del cuerpo de la solicitud
-        imagen = request.data
+        imagen = request.data #or request.files["imagen"]
 
         if not es_imagen_jpg(imagen):
             return "El archivo no es una imagen JPG", 400
