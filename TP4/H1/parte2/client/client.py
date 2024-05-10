@@ -1,8 +1,10 @@
 import requests
+import pathlib
 
 url = "http://localhost:5000/sobel"
 
-archivo_imagen = 'gato.jpg'
+
+archivo_imagen = str(pathlib.Path(__file__).parent.resolve()) + '/gato.jpeg'
 
 # Abrir el archivo de la imagen en modo binario
 with open(archivo_imagen, 'rb') as archivo:

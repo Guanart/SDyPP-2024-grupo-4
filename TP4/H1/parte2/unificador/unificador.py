@@ -1,7 +1,18 @@
 import numpy as np
-import redis, cv2
+import redis
+import cv2
 
-def buscar_partes(num_partes, id):
+def buscar_partes(num_partes: int, id: str) -> list:
+    """
+    Busca las partes de una imagen en Redis y las decodifica en imágenes de OpenCV.
+
+    Args:
+        num_partes (int): El número total de partes de la imagen.
+        id (str): El identificador único de la imagen.
+
+    Returns:
+        list: Una lista de imágenes de OpenCV que representan las partes de la imagen.
+    """
     r = redis.Redis(host='localhost', port=6379)
     partes = []
     for i in range(num_partes):
@@ -18,7 +29,18 @@ def buscar_partes(num_partes, id):
             print(f"La parte {i} no se encuentra en Redis.")
     return partes
 
-def reconstruir_imagen(partes, num_filas, num_columnas):
+def reconstruir_imagen(partes: list, num_filas: int, num_columnas: int) -> np.ndarray:
+    """
+    Reconstruye una imagen a partir de sus partes.
+
+    Args:
+        partes (list): Una lista de imágenes de OpenCV que representan las partes de la imagen.
+        num_filas (int): El número de filas en las que se dividieron las partes.
+        num_columnas (int): El número de columnas en las que se dividieron las partes.
+
+    Returns:
+        np.ndarray: La imagen reconstruida como una matriz NumPy.
+    """
     alto_parte, ancho_parte, _ = partes[0].shape
     alto_imagen = alto_parte * num_filas
     ancho_imagen = ancho_parte * num_columnas
@@ -35,13 +57,13 @@ def reconstruir_imagen(partes, num_filas, num_columnas):
     return imagen_reconstruida
 
 if __name__ == '__main__':
-    id = "892d05b5-7110-4b2b-9432-7da4637ab6fa"; # Hardcodeado para probar
-    filas = 2
-    columnas = 2
-    partes = buscar_partes(filas*columnas, id)
-    if len(partes) != (filas*columnas):
+    id = "34fd4bfc-3fd9-4e5a-9984-ffa19693b5a7"  # Hardcodeado para probar
+    filas: int = 2
+    columnas: int = 2
+    partes = buscar_partes(filas * columnas, id)
+    if len(partes) != (filas * columnas):
         print("Todavía no están terminadas todas las partes")
     else:
         imagen_reconstruida = reconstruir_imagen(partes, filas, columnas)
-        cv2.imwrite("imagen_reconstruida.jpg", imagen_reconstruida)
+        cv2.imwrite(f"{id}.jpg", imagen_reconstruida)
         print(f"Imagen reconstruida guardada.")
