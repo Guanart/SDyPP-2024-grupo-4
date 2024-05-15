@@ -1,6 +1,8 @@
 import numpy as np
-import redis
-import cv2
+from flask import Flask, request, send_file
+import redis, cv2
+
+app = Flask(__name__)
 
 def buscar_partes(num_partes: int, id: str) -> list:
     """
@@ -56,14 +58,21 @@ def reconstruir_imagen(partes: list, num_filas: int, num_columnas: int) -> np.nd
             contador += 1
     return imagen_reconstruida
 
-if __name__ == '__main__':
-    id = "b3ce3eda-481f-4df3-a9bd-d7a55f87eea2"  # Hardcodeado para probar
-    filas: int = 2
-    columnas: int = 2
+@app.route('/getImage')
+def get_image():
+    id = request.args.get('id')
     partes = buscar_partes(filas * columnas, id)
     if len(partes) != (filas * columnas):
         print("Todavía no están terminadas todas las partes")
+        return "Todavía no está lista la imagen", 500
     else:
         imagen_reconstruida = reconstruir_imagen(partes, filas, columnas)
-        cv2.imwrite(f"{id}.jpg", imagen_reconstruida)
+        filename = id + ".jpg"
+        cv2.imwrite(filename, imagen_reconstruida)
         print(f"Imagen reconstruida guardada.")
+        return send_file(filename, mimetype='image/jpeg')
+
+if __name__ == '__main__':
+    filas: int = 2
+    columnas: int = 2
+    app.run(port=5002)

@@ -1,4 +1,5 @@
-import pika, sys, cv2, threading, base64
+import numpy as np
+import pika, cv2, threading, base64
 from flask import Flask, json, request 
 
 def dividir_imagen(imagen, num_filas, num_columnas, id):
@@ -62,14 +63,18 @@ def recibir_imagen():
         imagen = request.files["imagen"]
         id = request.form["id"]
 
-        # Guardar la imagen -> se debería guardar en la carpeta /tmp cuando dockericemos
+        """# Guardar la imagen -> se debería guardar en la carpeta /tmp cuando dockericemos
         with open("./imagen_" + id + "_particionador" + ".jpg", 'wb') as f:
-            f.write(imagen.read())
+            f.write(imagen.read())"""
         
         # Iniciar el proceso de división de la imagen en 4 partes en un hilo separado
-        archivo_imagen = cv2.imread("imagen_" + id + "_particionador" + ".jpg")
+        #archivo_imagen = cv2.imread("imagen_" + id + "_particionador" + ".jpg")
+        
+        img_np = np.frombuffer(imagen.read(), np.uint8)
+        img_cv2 = cv2.imdecode(img_np, cv2.IMREAD_COLOR)
+
         t = threading.Thread(target=dividir_imagen, kwargs={
-                'imagen': archivo_imagen,
+                'imagen': img_cv2,
                 'num_filas': 2,
                 'num_columnas': 2,
                 'id': id

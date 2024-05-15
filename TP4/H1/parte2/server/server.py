@@ -1,16 +1,30 @@
-from flask import Flask, request
-import uuid, requests
+from flask import Flask, jsonify, request, send_file
+import uuid, requests, io
 
 app = Flask(__name__)
 
 def es_imagen_jpg(data):
-    # Verificar que son los primeros bytes de un archivo JPEG/JPG
+    # Verifica que son los primeros bytes de un archivo JPEG/JPG
     return data[:2].lower() == b'\xff\xd8'
 
 def particionar(imagen_data, id):
-    url = "http://localhost:5001/particionar" # Arreglar
-    response = requests.post(url, files={"imagen": imagen_data}, data={"id": id})
+    # Envia la imagen al particionador, esperando respuesta
+    response = requests.post("http://localhost:5001/particionar", files={"imagen": imagen_data}, data={"id": id})
     return response.status_code
+
+def unificador(id):
+    url = 'http://localhost:5002/getImage?id=' + id;
+    return requests.get(url)
+
+@app.route('/getImage', methods=['GET'])
+def retornar_imagen():
+    id = request.args.get('id')
+    response = unificador(id)
+    if response.status_code == 200:
+        img_file = io.BytesIO(response.content)
+        return send_file(img_file, mimetype='image/jpeg')
+    else:
+        return "Ocurrió un error en el servidor", 500
 
 @app.route('/sobel', methods=['POST'])
 def recibir_imagen():
@@ -26,25 +40,21 @@ def recibir_imagen():
         str: Mensaje de error si ocurre alguna excepción.
     """
     try:
-        # Obtener la imagen del cuerpo de la solicitud
         imagen = request.data #or request.files["imagen"]
-
         if not es_imagen_jpg(imagen):
             return "El archivo no es una imagen JPG", 400
         
-        # Guardar la imagen en el servidor, con un id único
-        id = uuid.uuid4()
-        with open("./imagen_" + str(id) + "_serverweb" + ".jpg", 'wb') as f:
-            f.write(imagen)
+        id = uuid.uuid4()   # Genera un ID único para la imagen
+
+        """with open("./imagen_" + str(id) + "_serverweb" + ".jpg", 'wb') as f:
+            f.write(imagen)"""
         
-        # Llamar al servidor particionador
         if particionar(imagen, id) != 200:
             return "Ocurrió un error en el servidor", 500
 
-        # Retornar ID de la imagen
         return str(id)
     except Exception as e:
         return str(e), 500
-    
+
 if __name__ == '__main__':
     app.run()

@@ -51,19 +51,14 @@ def main():
         parte_sobel = np.uint8(255 * sobel_combined / np.max(sobel_combined))
 
         # Guardar imagen (con formato de OpenCV)
-        print(f"Guardando parte {nro_parte} como sobel..." )
-        cv2.imwrite("parte" + str(nro_parte) + "_sobel.jpg", parte_sobel)
-        print("Guardado sobel")
+        # cv2.imwrite("parte" + str(nro_parte) + "_sobel.jpg", parte_sobel)
 
         # Guardar imagen
-        print(f"Guardando parte {nro_parte} normal..." )
-        with open(f"./{mensaje.get('id')}_{mensaje.get('nro')}.jpg", 'wb') as f:
-            f.write(imagen_bytes)
-        print("Guardado normal")
-
-        # Codificar la parte en formato JPEG
+        """with open(f"./{mensaje.get('id')}_{mensaje.get('nro')}.jpg", 'wb') as f:
+            f.write(imagen_bytes)"""
+        
+        # Obtener los bytes de la parte sobel
         _, parte_sobel_encoded = cv2.imencode('.jpg', parte_sobel)
-        # Convertir los datos codificados a bytes
         parte_sobel_bytes = parte_sobel_encoded.tobytes()
 
 
