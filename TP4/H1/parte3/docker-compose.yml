@@ -21,6 +21,8 @@ services:
       - "15672:15672"
     networks:
       - my_network
+    volumes:
+      - /rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
 
   worker1:
     image: grupo4sdypp2024/tp4-h1-worker_ack
@@ -32,7 +34,7 @@ services:
       - my_network
   
   worker2:
-    image: grupo4sdypp2024/tp4-h1-worker
+    image: grupo4sdypp2024/tp4-h1-worker_ack
     container_name: "worker2"
     depends_on:
       - redis
@@ -41,7 +43,7 @@ services:
       - my_network
 
   worker3:
-    image: grupo4sdypp2024/tp4-h1-worker
+    image: grupo4sdypp2024/tp4-h1-worker_ack
     container_name: "worker3"
     depends_on:
       - redis
@@ -50,7 +52,7 @@ services:
       - my_network
 
   worker4:
-    image: grupo4sdypp2024/tp4-h1-worker
+    image: grupo4sdypp2024/tp4-h1-worker_ack
     container_name: "worker4"
     depends_on:
       - redis
@@ -59,7 +61,7 @@ services:
       - my_network
 
   particionador:
-    image: grupo4sdypp2024/tp4-h1-particionador
+    image: grupo4sdypp2024/tp4-h1-particionador_ack
     container_name: "particionador"
     ports:
       - "5001:5001"
