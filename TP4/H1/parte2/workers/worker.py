@@ -1,5 +1,5 @@
 import numpy as np
-import pika, sys, os, json, base64, cv2
+import pika, sys, os, json, base64, cv2, time
 from redis import Redis
 
 def main():
@@ -14,7 +14,8 @@ def main():
     presionando CTRL+C.
     """
     # Conexión con RabbitMQ
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    time.sleep(10)
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
     channel = connection.channel()
 
     # Cola <imagenes>
@@ -78,7 +79,7 @@ def main():
 
 if __name__ == '__main__':
     try:
-        redis = Redis(host='localhost', port=6379, decode_responses=True)
+        redis = Redis(host='redis', port=6379, decode_responses=True)
         main()
     except KeyboardInterrupt:
         print('Interrupted')
@@ -86,15 +87,3 @@ if __name__ == '__main__':
             sys.exit(0)
         except SystemExit:
             os._exit(0)
-
-""" Conectarse de forma segura a Redis:
-r = redis.Redis(
-    host="my-redis.cloud.redislabs.com", port=6379,
-    username="default", # use your Redis user. More info https://redis.io/docs/latest/operate/oss_and_stack/management/security/acl/
-    password="secret", # use your Redis password
-    ssl=True,
-    ssl_certfile="./redis_user.crt",
-    ssl_keyfile="./redis_user_private.key",
-    ssl_ca_certs="./redis_ca.pem",
-)
-"""

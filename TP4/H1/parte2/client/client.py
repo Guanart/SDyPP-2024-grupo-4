@@ -21,13 +21,14 @@ def enviar_id():
     if response.status_code == 200:
         with open('imagen_sobel.jpg', 'wb') as f:
             f.write(response.content)
+        print("Imagen obtenida, guardada como imagen_sobel.jpg")
     else:
         print("Error " + str(response.status_code) + ": " + response.text)
 
 if __name__ == '__main__':
     print("Seleccione una opción:")
     print("1. Enviar una imagen")
-    print("2. Enviar un ID")
+    print("2. Enviar un ID para conseguir la imagen con sobel")
     opcion = input("Ingrese el número de la opción: ")
 
     if opcion == "1":

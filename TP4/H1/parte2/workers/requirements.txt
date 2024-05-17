@@ -1,2 +1,4 @@
+numpy
 redis
 pika
+opencv-python

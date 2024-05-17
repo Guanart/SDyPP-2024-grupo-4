@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, send_file
+from flask import Flask, request, send_file
 import uuid, requests, io
 
 app = Flask(__name__)
@@ -9,11 +9,11 @@ def es_imagen_jpg(data):
 
 def particionar(imagen_data, id):
     # Envia la imagen al particionador, esperando respuesta
-    response = requests.post("http://localhost:5001/particionar", files={"imagen": imagen_data}, data={"id": id})
+    response = requests.post("http://particionador:5001/particionar", files={"imagen": imagen_data}, data={"id": id})
     return response.status_code
 
 def unificador(id):
-    url = 'http://localhost:5002/getImage?id=' + id;
+    url = 'http://unificador:5002/getImage?id=' + id;
     return requests.get(url)
 
 @app.route('/getImage', methods=['GET'])
@@ -57,4 +57,4 @@ def recibir_imagen():
         return str(e), 500
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', port=5000)

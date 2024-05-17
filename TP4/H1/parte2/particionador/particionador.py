@@ -1,5 +1,5 @@
 import numpy as np
-import pika, cv2, threading, base64
+import pika, cv2, threading, base64, time
 from flask import Flask, json, request 
 
 def dividir_imagen(imagen, num_filas, num_columnas, id):
@@ -87,7 +87,8 @@ def recibir_imagen():
         return str(e), 500
 
 if __name__ == '__main__':
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    time.sleep(10)
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
     channel = connection.channel()
     channel.queue_declare(queue='imagenes')
-    app.run(port=5001)
+    app.run(host='0.0.0.0', port=5001)
