@@ -1,6 +1,4 @@
-data "google_client_openid_userinfo" "me" {
-    # email ="gonzalobenitounlu@gmail.com"
-}
+data "google_client_openid_userinfo" "me" {}
 
 terraform {
     required_providers {
@@ -19,12 +17,12 @@ provider "google" {
 }
 
 resource "google_compute_network" "vpc_network" {
-    name = "terraform-network"
+    name = "terraform-network-TP4-H2"
 }
 
-resource "google_compute_instance" "vm_instance" {
+resource "google_compute_instance" "tp4_h2_services_app" {
     count        = var.num_instances
-    name         = "vm-${count.index}"
+    name         = "servicios-apps-tp4-h2"
     machine_type = "e2-medium"
     zone         = var.zone
 
@@ -49,13 +47,13 @@ resource "google_compute_instance" "vm_instance" {
     metadata_startup_script = file(var.metadata_startup_script)
 }
 
-resource "google_compute_firewall" "allow-http-https-ssh" {
-    name    = "allow-http-https-ssh"
+resource "google_compute_firewall" "allow-http-https-ssh-rabbit" {
+    name    = "allow-http-https-ssh-rabbit"
     network = "default"
 
     allow {
         protocol = "tcp"
-        ports    = ["22", "80", "443"]
+        ports    = ["22", "80", "443", "5672"]
     }
 
     source_ranges = ["0.0.0.0/0"]

@@ -12,9 +12,8 @@ variable "zone" {
 }
 variable "num_instances" {
   type = number
-  # default = 1
+  default = 1
 }
-
 variable "metadata_startup_script" {
   type    = string
   default = "script.sh"

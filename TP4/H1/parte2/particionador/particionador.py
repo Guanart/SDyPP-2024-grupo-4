@@ -43,7 +43,6 @@ def dividir_imagen(imagen, num_filas, num_columnas, id):
             
             # Incremento contador
             contador += 1
-    connection.close()
 
 app = Flask(__name__)
 
