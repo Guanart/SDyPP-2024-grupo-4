@@ -20,9 +20,9 @@ resource "google_compute_network" "vpc_network" {
     name = "terraform-network-tp4-h2"
 }
 
-resource "google_compute_instance" "tp4_h2_services_app" {
+resource "google_compute_instance" "tp4-h2-services-app" {
     count        = var.num_instances
-    name         = "tp4_h2_services_app"
+    name         = "tp4-h2-services-app"
     machine_type = "e2-medium"
     zone         = var.zone
 
@@ -53,7 +53,7 @@ resource "google_compute_firewall" "allow-http-https-ssh-rabbit" {
 
     allow {
         protocol = "tcp"
-        ports    = ["22", "80", "443", "5672"]
+        ports    = ["22", "80", "443", "5672", "5000"]
     }
 
     source_ranges = ["0.0.0.0/0"]
