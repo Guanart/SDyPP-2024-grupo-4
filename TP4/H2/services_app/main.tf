@@ -17,12 +17,12 @@ provider "google" {
 }
 
 resource "google_compute_network" "vpc_network" {
-    name = "terraform-network-TP4-H2"
+    name = "terraform-network-tp4-h2"
 }
 
 resource "google_compute_instance" "tp4_h2_services_app" {
     count        = var.num_instances
-    name         = "servicios-apps-tp4-h2"
+    name         = "tp4_h2_services_app"
     machine_type = "e2-medium"
     zone         = var.zone
 
