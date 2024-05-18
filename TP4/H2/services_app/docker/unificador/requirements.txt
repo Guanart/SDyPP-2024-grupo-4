@@ -1,0 +1,4 @@
+numpy
+flask
+redis
+opencv-python
