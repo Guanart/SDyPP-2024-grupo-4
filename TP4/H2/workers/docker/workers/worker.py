@@ -1,5 +1,5 @@
 import numpy as np
-import pika, sys, os, json, base64, cv2, time
+import pika, sys, os, json, base64, cv2
 import pika.exceptions
 import redis
 
@@ -15,8 +15,7 @@ def main():
     presionando CTRL+C.
     """
     # Conexión con RabbitMQ
-    time.sleep(10)
-    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host=ip_vm))
     channel = connection.channel()
 
     # Cola <imagenes>
@@ -87,8 +86,9 @@ def main():
 
 if __name__ == '__main__':
     try:
+        ip_vm = os.getenv('IP_VM')
         redis_password = os.getenv('REDIS_PASSWORD')
-        redis = redis.StrictRedis(host='redis', port=6379, password=redis_password, decode_responses=True)
+        redis = redis.StrictRedis(host=ip_vm, port=6379, password=redis_password, decode_responses=True)
         main()
     except KeyboardInterrupt:
         print('Interrupted')

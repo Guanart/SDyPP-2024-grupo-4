@@ -5,7 +5,4 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 COPY . .
 RUN pip install -r requirements.txt
-
-# Definir la variable de entorno que tiene la contraseña del redis 
-ENV REDIS_PASSWORD=your_password
 CMD ["python", "unificador.py"]
