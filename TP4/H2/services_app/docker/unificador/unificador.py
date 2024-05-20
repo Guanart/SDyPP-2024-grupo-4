@@ -15,7 +15,7 @@ def buscar_partes(num_partes: int, id: str) -> list:
     Returns:
         list: Una lista de imágenes de OpenCV que representan las partes de la imagen.
     """
-    r = redis.Redis(host='redis', port=6379, password=redis_password)
+    r = redis.StrictRedis(host='redis', port=6379, password=redis_password)
     partes = []
     for i in range(num_partes):
         # Obtener la parte de Redis como bytes

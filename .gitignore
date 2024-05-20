@@ -10,4 +10,4 @@ TP4/H1/entorno_virtual
 *.jpg
 .history/
 *.jpeg
-*redis.conf
+*redis.env

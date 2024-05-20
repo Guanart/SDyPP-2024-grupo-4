@@ -7,5 +7,5 @@ COPY . .
 RUN pip install -r requirements.txt
 
 # Definir la variable de entorno que tiene la contraseña del redis 
-ENV REDIS_PASSWORD=CONTRASENIA
+ENV REDIS_PASSWORD=your_password
 CMD ["python", "unificador.py"]

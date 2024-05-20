@@ -1,6 +1,7 @@
 import numpy as np
 import pika, sys, os, json, base64, cv2, time
-from redis import Redis
+import pika.exceptions
+import redis
 
 def main():
     """
@@ -63,7 +64,6 @@ def main():
             _, parte_sobel_encoded = cv2.imencode('.jpg', parte_sobel)
             parte_sobel_bytes = parte_sobel_encoded.tobytes()
 
-
             # Guardar en redis: {clave: id+nro_parte, valor: imagen_bytes}
             clave = id + "_" + str(nro_parte)
             #redis.set(clave, imagen_bytes)     # Guardo la parte normal en Redis
@@ -88,8 +88,7 @@ def main():
 if __name__ == '__main__':
     try:
         redis_password = os.getenv('REDIS_PASSWORD')
-        print(redis_password)
-        redis = Redis(host='redis', port=6379, password=redis_password, decode_responses=True)
+        redis = redis.StrictRedis(host='redis', port=6379, password=redis_password, decode_responses=True)
         main()
     except KeyboardInterrupt:
         print('Interrupted')
@@ -97,6 +96,9 @@ if __name__ == '__main__':
             sys.exit(0)
         except SystemExit:
             os._exit(0)
-    except redis.exceptions.ConnectionError as e:
+    except redis.ConnectionError as e:
         print('Error de conexión a Redis:', e)
+        sys.exit(1)
+    except pika.exceptions.AMQPConnectionError as e:
+        print('Error de conexión a RabbitMQ:', e)
         sys.exit(1)
