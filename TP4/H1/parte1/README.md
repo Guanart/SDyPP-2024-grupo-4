@@ -3,7 +3,9 @@
 
 El archivo ```sobel.py``` utiliza la librería OpenCV (cv2 en python) para poder aplicar el filtro sobel.
 
-Para utilizarlo se debe ejecutar el siguiente comando:
+Primero ejecute el script ```init.services.sh``` para levantar el RabbitMQ y el Redis.
+
+Luego, para utilizar el operador de Sobel, se debe ejecutar el siguiente comando:
 ```
 python sobel.py {nombre_imagen.jpg}
 ```
