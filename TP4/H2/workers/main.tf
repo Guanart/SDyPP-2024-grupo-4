@@ -18,17 +18,18 @@ provider "google" {
     zone = var.zone
 }
 
-/*
-resource "google_compute_network" "vpc_network" {
-    name = "terraform-network"
-}
-*/
-
 resource "google_compute_instance" "vm_instance" {
     count        = var.num_instances
-    name         = "worker-${count.index}-tp4-h2"
+    name         = "worker-${count.index+1}-tp4-h2"
     machine_type = "e2-small"
     zone         = var.zone
+
+    scheduling {
+        preemptible                 = true
+        automatic_restart           = false
+        provisioning_model          = "SPOT"
+        instance_termination_action = "TERMINATE"
+    }
 
     boot_disk {
         initialize_params {
@@ -50,17 +51,3 @@ resource "google_compute_instance" "vm_instance" {
 
     metadata_startup_script = file(var.metadata_startup_script)
 }
-
-/*
-resource "google_compute_firewall" "allow-http-https-ssh" {
-    name    = "allow-http-https-ssh"
-    network = "default"
-
-    allow {
-        protocol = "tcp"
-        ports    = ["22", "80", "443"]
-    }
-
-    source_ranges = ["0.0.0.0/0"]
-}
-*/

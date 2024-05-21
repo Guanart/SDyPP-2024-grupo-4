@@ -1,9 +1,11 @@
 import requests
 
 def configurar_ip():
+    global server_ip
     server_ip = input("Ingrese la IP del servidor al que quiere acceder: ")
 
 def enviar_imagen():
+    global server_ip
     if not server_ip:
         print("Por favor, configure la dirección IP del servidor primero.")
         return
@@ -19,6 +21,7 @@ def enviar_imagen():
             print("Error " + str(response.status_code) + ": " + response.text)
 
 def enviar_id():
+    global server_ip
     if not server_ip:
         print("Por favor, configure la dirección IP del servidor primero.")
         return

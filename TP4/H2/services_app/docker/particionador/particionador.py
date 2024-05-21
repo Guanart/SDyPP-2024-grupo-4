@@ -79,9 +79,10 @@ def recibir_imagen():
         return str(e), 500
 
 if __name__ == '__main__':
+    connected = False
     while not connected:
         try:
-            connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+            connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq', heartbeat=0))
             channel = connection.channel()
             channel.confirm_delivery()
             channel.queue_declare(queue='imagenes')

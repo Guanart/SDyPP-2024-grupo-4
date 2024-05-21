@@ -40,7 +40,6 @@ resource "google_compute_instance" "tp4-h2-services-app" {
 
     metadata = {
         ssh-keys = "${split("@", data.google_client_openid_userinfo.me.email)[0]}:${tls_private_key.ssh.public_key_openssh}"
-        # user_data = file("${path.module}/script.sh")
     }
 
     metadata_startup_script = file("${path.module}/script.sh")
@@ -53,7 +52,7 @@ resource "google_compute_firewall" "allow-http-https-ssh-rabbit-redis" {
 
     allow {
         protocol = "tcp"
-        ports    = ["22", "80", "443", "5672", "6379", "5000", "15672"]
+        ports    = ["22", "80", "443", "5672", "6379", "5000"]
     }
 
     source_ranges = ["0.0.0.0/0"]
