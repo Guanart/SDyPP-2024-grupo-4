@@ -26,8 +26,8 @@ resource "google_compute_network" "vpc_network" {
 
 resource "google_compute_instance" "vm_instance" {
     count        = var.num_instances
-    name         = "vm-${count.index}-tp4-h2"
-    machine_type = "e2-medium"
+    name         = "worker-${count.index}-tp4-h2"
+    machine_type = "e2-small"
     zone         = var.zone
 
     boot_disk {

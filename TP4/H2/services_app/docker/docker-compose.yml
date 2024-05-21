@@ -12,9 +12,9 @@ services:
       - "6379:6379"
     networks:
       - my_network
-    env_file:
-      - ./redis.env
-    command: /bin/sh -c "redis-server --requirepass $$REDIS_PASSWORD"
+    environment:
+      REDIS_PASSWORD: redis_images
+    command: /bin/sh -c "redis-server --requirepass $REDIS_PASSWORD"
   
   rabbitmq:
     image: "rabbitmq:management"
@@ -47,6 +47,8 @@ services:
       - particionador
     networks:
       - my_network
+    environment:
+      REDIS_PASSWORD: redis_images
 
   server:
     image: grupo4sdypp2024/tp4-h1-server

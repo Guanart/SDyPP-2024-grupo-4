@@ -21,7 +21,6 @@ resource "google_compute_network" "vpc_network" {
 }
 
 resource "google_compute_instance" "tp4-h2-services-app" {
-    count        = var.num_instances
     name         = "tp4-h2-services-app"
     machine_type = "e2-medium"
     zone         = var.zone
@@ -44,11 +43,12 @@ resource "google_compute_instance" "tp4-h2-services-app" {
         # user_data = file("${path.module}/script.sh")
     }
 
-    metadata_startup_script = file(var.metadata_startup_script)
+    metadata_startup_script = file("${path.module}/script.sh")
+    
 }
 
-resource "google_compute_firewall" "allow-http-https-ssh-rabbit" {
-    name    = "allow-http-https-ssh-rabbit"
+resource "google_compute_firewall" "allow-http-https-ssh-rabbit-redis" {
+    name    = "allow-http-https-ssh-rabbit-redis"
     network = "default"
 
     allow {
