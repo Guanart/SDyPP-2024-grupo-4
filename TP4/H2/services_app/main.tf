@@ -53,7 +53,7 @@ resource "google_compute_firewall" "allow-http-https-ssh-rabbit-redis" {
 
     allow {
         protocol = "tcp"
-        ports    = ["22", "80", "443", "5672", "6379", "5000"]
+        ports    = ["22", "80", "443", "5672", "6379", "5000", "15672"]
     }
 
     source_ranges = ["0.0.0.0/0"]

@@ -26,7 +26,7 @@ services:
       - /rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
 
   particionador:
-    image: grupo4sdypp2024/tp4-h1-particionador_requeue
+    image: grupo4sdypp2024/tp4-h2-particionador
     container_name: "particionador"
     ports:
       - "5001:5001"
