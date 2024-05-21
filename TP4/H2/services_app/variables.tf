@@ -10,11 +10,3 @@ variable "region" {
 variable "zone" {
   default = "us-east1-d"
 }
-variable "num_instances" {
-  type = number
-  default = 1
-}
-variable "metadata_startup_script" {
-  type    = string
-  default = "script.sh"
-}
