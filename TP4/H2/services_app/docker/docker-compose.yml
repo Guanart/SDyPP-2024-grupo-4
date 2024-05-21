@@ -12,9 +12,7 @@ services:
       - "6379:6379"
     networks:
       - my_network
-    environment:
-      REDIS_PASSWORD: redis_images
-    command: /bin/sh -c "redis-server --requirepass $REDIS_PASSWORD"
+    command: /bin/sh -c "redis-server --requirepass redis_images"
   
   rabbitmq:
     image: "rabbitmq:management"

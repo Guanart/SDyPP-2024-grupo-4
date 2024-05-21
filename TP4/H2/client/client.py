@@ -7,7 +7,7 @@ def enviar_imagen():
     path_imagen = input("Ingrese la ruta de la imagen: ")
     with open(path_imagen, 'rb') as archivo:
         imagen = archivo.read()
-        response = requests.post("http://34.138.8.15:5000/sobel", data=imagen, headers={"Content-Type": "image/jpeg"})
+        response = requests.post("http://34.139.86.205:80/sobel", data=imagen, headers={"Content-Type": "image/jpeg"})
         if response.status_code == 200:
             id = response.text
             print("Este es el ID de la imagen:", id)
@@ -16,7 +16,7 @@ def enviar_imagen():
 
 def enviar_id():
     id = input("Ingrese el ID: ")
-    url = 'http://34.138.8.15:5000/getImage?id=' + id;
+    url = 'http://34.139.86.205:80/getImage?id=' + id;
     response = requests.get(url)
     if response.status_code == 200:
         with open('imagen_sobel.jpg', 'wb') as f:

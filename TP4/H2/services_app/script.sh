@@ -20,4 +20,4 @@ sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin dock
 # Ejecutar contenedores
 git clone https://github.com/Guanart/SDyPP-2024-grupo-4.git
 cd SDyPP-2024-grupo-4/TP4/H2/services_app/docker
-sudo docker-compose up -d
+sudo docker compose up -d
