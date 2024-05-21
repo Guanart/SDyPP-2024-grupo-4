@@ -7,7 +7,8 @@ Ahora se separan las tareas de forma distribuida mediante contenedores Docker (l
 - Workers: Los workers obtienen las partes ya que son consumidores de RabbitMQ, una vez obtenida, le aplican el operador Sobel, y luego la almacenan en un servidor Redis.
 - Unificador: Se encarga de obtener las distintas partes de la imagen de Redis, y las vuelve una sola imagen. Cuando el cliente consulta con el ID, el server envía este ID al unificador, y de esta manera comienza la tarea de unificación, luego se la devuelve al server, y el server al cliente.
 
-Se adjunta una imagen para visualizar el esquema de trabajo.
+En la siguiente imagen se puede ver el esquema de trabajo:
+![alt text](esquema.png)
 
 
 Para utilizar esto, primero debe levantar los contenedores (debe tener el ```docker-compose.yml```):
