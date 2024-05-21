@@ -13,7 +13,7 @@ def particionar(imagen_data, id):
     return response.status_code
 
 def unificador(id):
-    url = 'http://unificador:5002/getImage?id=' + id
+    url = 'http://unificador:5002/getImage?id=' + id;
     return requests.get(url)
 
 @app.route('/getImage', methods=['GET'])
