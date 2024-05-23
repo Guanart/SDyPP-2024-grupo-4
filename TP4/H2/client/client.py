@@ -9,16 +9,19 @@ def enviar_imagen():
     if not server_ip:
         print("Por favor, configure la dirección IP del servidor primero.")
         return
+    url = "http://" + server_ip + ":5000/sobel"
     path_imagen = input("Ingrese la ruta de la imagen: ")
-    with open(path_imagen, 'rb') as archivo:
-        imagen = archivo.read()
-        url = 'http://' + server_ip + ':5000/sobel'
-        response = requests.post(url, data=imagen, headers={"Content-Type": "image/jpeg"})
+    filas = input("Número de partes filas: ")
+    columnas = input("Número de partes columnas: ")
+    with open(path_imagen, 'rb') as img:
+        files = {"imagen": img}
+        data = {"filas": filas, "columnas": columnas}
+        response = requests.post(url, files=files, data=data)
         if response.status_code == 200:
             id = response.text
             print("Este es el ID de la imagen:", id)
         else:
-            print("Error " + str(response.status_code) + ": " + response.text)
+            print(f"Error {response.status_code}: {response.text}")
 
 def enviar_id():
     global server_ip
@@ -29,11 +32,15 @@ def enviar_id():
     url = 'http://' + server_ip + ':5000/getImage?id=' + id;
     response = requests.get(url)
     if response.status_code == 200:
-        with open('imagen_sobel.jpg', 'wb') as f:
-            f.write(response.content)
-        print("Imagen obtenida, guardada como imagen_sobel.jpg")
+        content_type = response.headers.get('Content-Type')
+        if content_type == 'image/jpeg':
+            with open('imagen_sobel.jpg', 'wb') as f:
+                f.write(response.content)
+            print("Imagen obtenida, guardada como imagen_sobel.jpg")
+        else:
+            print(response.text) 
     else:
-        print("Error " + str(response.status_code) + ": " + response.text)
+        print(f"Error {response.status_code}: {response.text}")
 
 def mostrar_menu():
     print("Bienvenido al menú:")

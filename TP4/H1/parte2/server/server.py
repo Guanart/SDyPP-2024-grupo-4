@@ -11,9 +11,14 @@ def retornar_imagen():
 
     if response.status_code != 200:
         return response.text, response.status_code
-    else:
+    
+    content_type = response.headers.get('Content-Type')
+
+    if content_type == 'image/jpeg':
         img_file = io.BytesIO(response.content)
         return send_file(img_file, mimetype='image/jpeg')
+    else:
+        return response.text, 200
 
 @app.route('/sobel', methods=['POST'])
 def recibir_imagen():

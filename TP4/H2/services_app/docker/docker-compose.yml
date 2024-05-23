@@ -35,6 +35,8 @@ services:
       - rabbitmq
     networks:
       - my_network
+    environment:
+      REDIS_PASSWORD: redis_images
 
   unificador:
     image: grupo4sdypp2024/tp4-h2-unificador

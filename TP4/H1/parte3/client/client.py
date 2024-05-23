@@ -21,9 +21,13 @@ def enviar_id():
     url = "http://localhost:5000/getImage?id=" + id;
     response = requests.get(url)
     if response.status_code == 200:
-        with open('imagen_sobel.jpg', 'wb') as f:
-            f.write(response.content)
-        print("Imagen obtenida, guardada como imagen_sobel.jpg")
+        content_type = response.headers.get('Content-Type')
+        if content_type == 'image/jpeg':
+            with open('imagen_sobel.jpg', 'wb') as f:
+                f.write(response.content)
+            print("Imagen obtenida, guardada como imagen_sobel.jpg")
+        else:
+            print(response.text) 
     else:
         print(f"Error {response.status_code}: {response.text}")
 
