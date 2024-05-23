@@ -1,25 +1,14 @@
 import numpy as np
 from flask import Flask, request, send_file
-import redis, cv2
+import redis, cv2, sys, io
 
 app = Flask(__name__)
 
-def buscar_partes(num_partes: int, id: str) -> list:
-    """
-    Busca las partes de una imagen en Redis y las decodifica en imágenes de OpenCV.
-
-    Args:
-        num_partes (int): El número total de partes de la imagen.
-        id (str): El identificador único de la imagen.
-
-    Returns:
-        list: Una lista de imágenes de OpenCV que representan las partes de la imagen.
-    """
-    r = redis.Redis(host='redis', port=6379)
+def buscar_partes(num_partes, id):
     partes = []
     for i in range(num_partes):
         # Obtener la parte de Redis como bytes
-        clave = id + "_" + str(i)
+        clave = id + "_" + str(i+1)
         parte_bytes = r.get(clave)
 
         # Verificar si la parte está en Redis
@@ -28,21 +17,10 @@ def buscar_partes(num_partes: int, id: str) -> list:
             parte_opencv = cv2.imdecode(np.frombuffer(parte_bytes, dtype=np.uint8), cv2.IMREAD_COLOR)
             partes.append(parte_opencv)
         else:
-            print(f"La parte {i} no se encuentra en Redis.")
+            print(f"La parte {i+1} no se encuentra en Redis.")
     return partes
 
-def reconstruir_imagen(partes: list, num_filas: int, num_columnas: int) -> np.ndarray:
-    """
-    Reconstruye una imagen a partir de sus partes.
-
-    Args:
-        partes (list): Una lista de imágenes de OpenCV que representan las partes de la imagen.
-        num_filas (int): El número de filas en las que se dividieron las partes.
-        num_columnas (int): El número de columnas en las que se dividieron las partes.
-
-    Returns:
-        np.ndarray: La imagen reconstruida como una matriz NumPy.
-    """
+def reconstruir_imagen(partes, num_filas, num_columnas):
     alto_parte, ancho_parte, _ = partes[0].shape
     alto_imagen = alto_parte * num_filas
     ancho_imagen = ancho_parte * num_columnas
@@ -58,21 +36,33 @@ def reconstruir_imagen(partes: list, num_filas: int, num_columnas: int) -> np.nd
             contador += 1
     return imagen_reconstruida
 
+def eliminar_partes(num_partes, id):
+    r.delete(id+"_filas")
+    r.delete(id+"_columnas")
+    for i in range(num_partes):
+        clave = id + "_" + str(i+1)
+        r.delete(clave)
+
 @app.route('/getImage')
 def get_image():
-    id = request.args.get('id')
+    id = request.args.get("id")
+    filas = int(r.get(id+"_filas").decode('utf-8'))
+    columnas = int(r.get(id+"_columnas").decode('utf-8'))
     partes = buscar_partes(filas * columnas, id)
     if len(partes) != (filas * columnas):
         print("Todavía no están terminadas todas las partes")
-        return "Todavía no está lista la imagen", 500
+        return "Todavía no está lista la imagen", 200
     else:
+        eliminar_partes(filas * columnas, id)
         imagen_reconstruida = reconstruir_imagen(partes, filas, columnas)
-        filename = id + ".jpg"
-        cv2.imwrite(filename, imagen_reconstruida)
-        print(f"Imagen reconstruida guardada.")
-        return send_file(filename, mimetype='image/jpeg')
+        _, imagen_bytes = cv2.imencode('.jpg', imagen_reconstruida)
+        return send_file(io.BytesIO(imagen_bytes.tobytes()), mimetype='image/jpeg')
 
 if __name__ == '__main__':
-    filas: int = 2
-    columnas: int = 2
+    try:
+        r = redis.Redis(host='redis', port=6379)
+        print("Conectado a Redis")
+    except Exception as e:
+        print(f"No se pudo conectar a Redis: {e}")
+        sys.exit(1) 
     app.run(host='0.0.0.0', port=5002)
