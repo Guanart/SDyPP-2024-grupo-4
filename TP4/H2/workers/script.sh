@@ -18,4 +18,4 @@ sudo apt update
 sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
 
 # Ejecutar contenedores
-docker run -e REDIS_PASSWORD=redis_images -e IP_VM=34.138.74.138 grupo4sdypp2024/tp4-h2-worker
+docker run -e REDIS_PASSWORD=redis_images -e IP_VM=104.196.161.245 grupo4sdypp2024/tp4-h2-worker

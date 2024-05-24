@@ -10,4 +10,4 @@ Para utilizar el cliente, se debe ejecutar el siguiente comando:
 ```
 python client.py
 ```
-Este programa le pide que ingrese la dirección IP del servidor, ahora mismo la IP es: ```34.138.74.138```.
+Este programa le pide que ingrese la dirección IP del servidor, ahora mismo la IP es: ```104.196.161.245```.
