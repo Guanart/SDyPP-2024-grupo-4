@@ -15,6 +15,7 @@ spec:
       containers:
       - name: redis
         image: redis:alpine
+        command: ["/bin/sh", "-c", "redis-server --requirepass ${REDIS_PASSWORD}"]
         env:
         - name: REDIS_PASSWORD
           valueFrom:
@@ -32,7 +33,7 @@ kind: Service
 metadata:
   name: redis
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
   - port: 6379
     targetPort: 6379

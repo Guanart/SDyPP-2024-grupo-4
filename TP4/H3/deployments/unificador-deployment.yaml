@@ -1,38 +1,37 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: particionador
+  name: unificador
   labels:
-    app: particionador
+    app: unificador
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: particionador
+      app: unificador
   template:
     metadata:
       labels:
-        app: particionador
+        app: unificador
     spec:
       containers:
-      - name: particionador
-        image: grupo4sdypp2024/tp4-h2-particionador
-        env:
+      - name: unificador
+        image: grupo4sdypp2024/tp4-h2-unificador
         - name: REDIS_PASSWORD
           valueFrom:
             secretKeyRef:
               name: redis-secret
               key: password
         ports:
-        - containerPort: 5001
+        - containerPort: 5002
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: particionador
+  name: unificador
 spec:
   ports:
-  - port: 5001
+  - port: 5002
   selector:
-    app: particionador
+    app: unificador
   type: ClusterIP
