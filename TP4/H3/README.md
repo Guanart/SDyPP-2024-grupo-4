@@ -1,7 +1,7 @@
 # H3 - Sobel contenerizado asincrónico y escalable
 
 ## Diagrama de arquitectura
-[Insertar dibujito]
+
 
 ## Uso del cliente para enviar la imagen
 Para utilizar el cliente, se debe ejecutar el siguiente comando:
