@@ -57,7 +57,7 @@ resource "google_container_node_pool" "spot" {
       team = "devops"
     }
 
-    taint {
+    taint {     // ESTO ME PERMITIRÁ INDICAR QUÉ TIPO DE MÁQUINA USAR EN LOS DEPLOYMENTS, agregando un toleration en los workers -> para que usen una SPOT
       key    = "instance_type"
       value  = "spot"
       effect = "NO_SCHEDULE"
