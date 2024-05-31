@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: particionador
+spec:
+  ports:
+  - port: 5001
+  selector:
+    app: particionador
+  type: ClusterIP
