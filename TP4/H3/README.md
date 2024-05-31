@@ -1,0 +1,30 @@
+# H3 - Sobel contenerizado asincrónico y escalable
+
+## Diagrama de arquitectura
+[Insertar dibujito]
+
+## Inicio
+### Levantar el Clúster e Iniciar Kubernetes
+```bash
+    terraform init
+    terraform apply
+```
+
+### Iniciar Services
+```bash
+gcloud container clusters get-credentials primary --region=us-east1-b
+kubectl apply -f servicios/*/*.yaml
+kubectl apply -f apps/*/*.yaml
+```
+
+### Iniciar Workers
+```bash
+kubectl apply -f worker-deployment.yaml
+```
+
+## Uso del cliente para enviar la imagen
+Para utilizar el cliente, se debe ejecutar el siguiente comando:
+```
+python client.py
+```
+Este programa le pide que ingrese la dirección IP del servidor, ahora mismo la IP es: ```34.139.86.205```.

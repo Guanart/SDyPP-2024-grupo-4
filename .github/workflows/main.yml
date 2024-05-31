@@ -1,4 +1,4 @@
-name: SDyPP-grupo4
+name: SDyPP-grupo4-tp4-h3
 
 on:
   push:
@@ -6,22 +6,112 @@ on:
       - main
 
 jobs:
-  build:
+  configure-backend:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4.1.6
 
-      - name: Login to DockerHub
-        run: echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+      - name: Setup Google Cloud
+        uses: ./.github/actions/gcloud-credentials
+        with:
+          credentials_json: ${{ secrets.GPC_CREDENTIALS_FILE }}
+
+      - name: Check and Create GCS Bucket
         env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build and push Docker image
+          BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
+          PROJECT_ID: ${{ secrets.PROJECT_ID }}
         run: |
-          docker build -t grupo4sdypp2024/tp1-h1 -f prueba-pipeline/dockerfiles/ejemplo1.dockerfile .
-          docker push grupo4sdypp2024/tp1-h1
+          gcloud config set project $PROJECT_ID
+          # Check if the bucket exists
+          BUCKET_URI="gs://${BUCKET_NAME}/"
+          if gsutil ls -p $PROJECT_ID | grep -q $BUCKET_URI; then
+            echo "Bucket $BUCKET_NAME already exists."
+          else
+            echo "Creating bucket $BUCKET_NAME..."
+            gsutil mb -p $PROJECT_ID $BUCKET_URI
+          fi
 
-      # Entrar por ssh, pullear la imagen en la vm de gcloud, y correr el servicio
+  deploy-infra:
+    needs: configure-backend
+    if: "!contains(github.event.head_commit.message, 'delete')"  # Skip this job if commit message contains 'delete'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.6
+      
+      - name: Setup Google Cloud
+        uses: ./.github/actions/gcloud-credentials
+        with:
+          credentials_json: ${{ secrets.GPC_CREDENTIALS_FILE }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3.1.1
+
+      - name: Terraform Initialize
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.BUCKET_NAME }}" \
+            -backend-config="prefix=terraform/state"
+        working-directory: TP4/H3/terraform
+
+      - name: Terraform Plan
+        run: |
+          terraform plan -out=tfplan 
+        working-directory: TP4/H3/terraform
+
+      - name: Terraform Apply
+        run: |
+          terraform apply -auto-approve tfplan
+        working-directory: TP4/H3/terraform
+
+  delete-infra:
+    needs: configure-backend
+    if: contains(github.event.head_commit.message, 'delete')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.6
+      
+      - name: Setup Google Cloud
+        uses: ./.github/actions/gcloud-credentials
+        with:
+          credentials_json: ${{ secrets.GPC_CREDENTIALS_FILE }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3.1.1
+
+      - name: Terraform Initialize
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.BUCKET_NAME }}" \
+            -backend-config="prefix=terraform/state"
+        working-directory: TP4/H3/terraform
+
+      - name: Terraform Destroy
+        run: |
+          terraform destroy -auto-approve
+        working-directory: TP4/H3/terraform
+
+
+  deploy-services-apps-workers:
+    runs-on: ubuntu-latest
+    steps:    
+      - name: Checkout code
+        uses: actions/checkout@v4.1.6
+      - name: Setup Google Cloud
+        uses: ./.github/actions/gcloud-credentials
+        with:
+          credentials_json: ${{ secrets.GPC_CREDENTIALS_FILE }}
+      - name: Install gke-gcloud-auth-plugin
+        run: gcloud components install gke-gcloud-auth-plugin
+        
+      - name: Get Kubernetes Credentials
+        run: |
+          gcloud container clusters get-credentials primary --zone "us-east1-b" --project ${{ secrets.PROJECT_ID }}
+      
+      - name: Create Kubernetes Services and Apps
+        run: |
+          kubectl apply -f TP4/H3/servicios/*/*.yaml
+          kubectl apply -f TP4/H3/apps/*/*.yaml
+          kubectl apply -f TP4/H3/workers/*/*.yaml<s
