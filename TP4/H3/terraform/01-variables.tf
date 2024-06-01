@@ -1,5 +1,5 @@
 variable "project_id" {
-  default = "sharp-technique-416800"
+  default = "sdypp2024"
 }
 variable "region" {
   default = "us-east1"
