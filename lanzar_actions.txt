@@ -1,3 +1,4 @@
 deshaciendo fix delete_protection porque incluye "delete" xd
 delete
 undo delete
+undo undo del3te
