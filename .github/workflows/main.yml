@@ -62,7 +62,7 @@ jobs:
 
       - name: Terraform Apply
         run: |
-          terraform apply -auto-approve tfplan
+          terraform apply -lock=false -auto-approve tfplan
         working-directory: TP4/H3/terraform
 
   delete-infra:
