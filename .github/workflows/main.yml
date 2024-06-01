@@ -90,7 +90,7 @@ jobs:
 
       - name: Terraform Destroy
         run: |
-          terraform destroy -auto-approve
+          terraform destroy -lock=false -auto-approve
         working-directory: TP4/H3/terraform
 
 
