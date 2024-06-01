@@ -1,6 +1,3 @@
-variable "credentials_file_path" {
-  default = "../credentials.json"
-}
 variable "project_id" {
   default = "sharp-technique-416800"
 }
