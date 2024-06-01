@@ -11,3 +11,4 @@ TP4/H1/entorno_virtual
 .history/
 *.jpeg
 *redis.env
+**/.terraform/providers/*

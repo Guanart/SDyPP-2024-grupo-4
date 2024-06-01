@@ -15,7 +15,7 @@ jobs:
       - name: Setup Google Cloud
         uses: ./.github/actions/gcloud-credentials
         with:
-          credentials_json: ${{ secrets.GPC_CREDENTIALS_FILE }}
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
 
       - name: Check and Create GCS Bucket
         env:
@@ -43,7 +43,7 @@ jobs:
       - name: Setup Google Cloud
         uses: ./.github/actions/gcloud-credentials
         with:
-          credentials_json: ${{ secrets.GPC_CREDENTIALS_FILE }}
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3.1.1
@@ -76,7 +76,7 @@ jobs:
       - name: Setup Google Cloud
         uses: ./.github/actions/gcloud-credentials
         with:
-          credentials_json: ${{ secrets.GPC_CREDENTIALS_FILE }}
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3.1.1
@@ -102,7 +102,7 @@ jobs:
       - name: Setup Google Cloud
         uses: ./.github/actions/gcloud-credentials
         with:
-          credentials_json: ${{ secrets.GPC_CREDENTIALS_FILE }}
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
       - name: Install gke-gcloud-auth-plugin
         run: gcloud components install gke-gcloud-auth-plugin
         
