@@ -17,5 +17,5 @@ runs:
       uses: google-github-actions/setup-gcloud@v2.1.0
       with:
         version: 'latest'
-        service_account_key: ${{ secrets.GOOGLE_CREDENTIALS }}
+        service_account_key: ${{ inputs.credentials_json }}
         export_default_credentials: true
