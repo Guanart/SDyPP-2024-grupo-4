@@ -1,1 +1,1 @@
-delete
+deshaciendo fix delete_protection porque incluye "delete" xd
