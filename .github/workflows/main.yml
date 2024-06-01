@@ -113,6 +113,16 @@ jobs:
       
       - name: Create Kubernetes Services and Apps
         run: |
-          kubectl apply -f TP4/H3/servicios/
-          kubectl apply -f TP4/H3/apps/
-          kubectl apply -f TP4/H3/workers/
+          kubectl apply -f TP4/H3/servicios/rabbitmq/rabbitmq-deployment.yaml
+          kubectl apply -f TP4/H3/servicios/rabbitmq/rabbitmq-service.yaml
+          kubectl apply -f TP4/H3/servicios/redis/redis-deployment.yaml
+          kubectl apply -f TP4/H3/servicios/redis/redis-service.yaml
+
+          kubectl apply -f TP4/H3/apps/particionador/particionador-deployment.yaml
+          kubectl apply -f TP4/H3/apps/particionador/particionador-service.yaml
+          kubectl apply -f TP4/H3/apps/unificador/unificador-deployment.yaml
+          kubectl apply -f TP4/H3/apps/unificador/unificador-service.yaml
+          kubectl apply -f TP4/H3/apps/web-server/web-server-deployment.yaml
+          kubectl apply -f TP4/H3/apps/web-server/web-server-service.yaml
+
+          kubectl apply -f TP4/H3/workers/worker-deployment.yaml
