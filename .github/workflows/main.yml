@@ -88,12 +88,6 @@ jobs:
             -backend-config="prefix=terraform/state"
         working-directory: TP4/H3/terraform
 
-      - name: Disable Cluster Deletion Protection
-        run: |
-          gcloud container clusters update primary --region us-east1-b --no-enable-autorepair
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: /tmp/credentials.json
-
       - name: Terraform Destroy
         run: |
           terraform destroy -auto-approve
