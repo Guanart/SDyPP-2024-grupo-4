@@ -6,8 +6,12 @@ terraform {
       version = ">=5.26.0"
     }
   }
-  # backend "gcs" {
-  # }
+
+  backend "gcs" {
+    bucket  = var.bucket_name
+    prefix  = "terraform/state"
+  }
+
   # required_version = ">= 1.7.5"
 }
 

@@ -7,3 +7,6 @@ variable "region" {
 variable "zone" {
   default = "us-east1-d"
 }
+variable "bucket_name" {
+  default = "sdypp-2024-integrador-bucket-tfstate"
+}
