@@ -22,10 +22,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3.1.1
 
       - name: Terraform Initialize
-        run: |
-          terraform init --reconfigure \
-            -backend-config="bucket=${{ secrets.BUCKET_NAME }}" \
-            -backend-config="prefix=terraform/state"
+        run: terraform init --reconfigure
         working-directory: TP4/H3/terraform
 
       - name: Terraform Plan
