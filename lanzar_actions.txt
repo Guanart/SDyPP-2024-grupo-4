@@ -4,3 +4,4 @@ undo delete
 undo undo del3te
 delete
 ultimo intento
+intentando delete con el nuevo pipeline
