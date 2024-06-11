@@ -7,10 +7,10 @@ terraform {
     }
   }
 
-  # backend "gcs" {
-  #   bucket  = "sdypp-2024-integrador-bucket-tfstate"
-  #   prefix  = "terraform/state"
-  # }
+  backend "gcs" {
+    # bucket  = "sdypp-2024-integrador-bucket-tfstate"
+    # prefix  = "terraform/state"
+  }
 
   # required_version = ">= 1.7.5"
 }
