@@ -1,4 +1,4 @@
-resource "google_storage_bucket" "default" {
+/*resource "google_storage_bucket" "default" {
   name          = var.bucket_name
   force_destroy = false
   location      = "US"
@@ -12,4 +12,4 @@ resource "google_storage_bucket" "default" {
   depends_on = [
     google_project_iam_member.default
   ]
-}
+}*/
