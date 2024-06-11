@@ -1,5 +1,5 @@
 variable "project_id" {
-  default = "sdypp2024"
+  default = "sdypp-2024-integrador"
 }
 variable "region" {
   default = "us-east1"
