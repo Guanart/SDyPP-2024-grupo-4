@@ -7,13 +7,12 @@ on:
 
 jobs:
   deploy-infra:
-    needs: configure-backend
-    if: "!contains(github.event.head_commit.message, 'delete')"  # Skip this job if commit message contains 'delete'
+    if: "!contains(github.event.head_commit.message, 'delete')" # Skip this job if commit message contains 'delete'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.1.6
-      
+
       - name: Setup Google Cloud
         uses: ./.github/actions/gcloud-credentials
         with:
@@ -31,7 +30,7 @@ jobs:
 
       - name: Terraform Plan
         run: |
-          terraform plan -out=tfplan 
+          terraform plan -out=tfplan
         working-directory: TP4/H3/terraform
 
       - name: Terraform Apply
@@ -40,13 +39,12 @@ jobs:
         working-directory: TP4/H3/terraform
 
   delete-infra:
-    needs: configure-backend
     if: contains(github.event.head_commit.message, 'delete')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.1.6
-      
+
       - name: Setup Google Cloud
         uses: ./.github/actions/gcloud-credentials
         with:
@@ -67,11 +65,10 @@ jobs:
           terraform destroy -lock=false -auto-approve
         working-directory: TP4/H3/terraform
 
-
   deploy-services-apps-workers:
     needs: deploy-infra
     runs-on: ubuntu-latest
-    steps:    
+    steps:
       - name: Checkout code
         uses: actions/checkout@v4.1.6
 
@@ -79,21 +76,21 @@ jobs:
         uses: ./.github/actions/gcloud-credentials
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
-          
+
       - name: Install gke-gcloud-auth-plugin
         run: gcloud components install gke-gcloud-auth-plugin
-        
+
       - name: Get Kubernetes Credentials
         run: |
           gcloud container clusters get-credentials primary --zone "us-east1-b" --project ${{ secrets.PROJECT_ID }}
-      
+
       - name: Create Kubernetes Services
         run: |
           kubectl apply -f TP4/H3/servicios/rabbitmq/rabbitmq-deployment.yaml
           kubectl apply -f TP4/H3/servicios/rabbitmq/rabbitmq-service.yaml
           kubectl apply -f TP4/H3/servicios/redis/redis-deployment.yaml
           kubectl apply -f TP4/H3/servicios/redis/redis-service.yaml
-      
+
       - name: Create Kubernetes Apps
         run: |
           kubectl apply -f TP4/H3/apps/particionador/particionador-deployment.yaml
