@@ -1,0 +1,34 @@
+name: Delete Infrastructure
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  delete-infra:
+    if: contains(github.event.head_commit.message, 'delete')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.6
+
+      - name: Setup Google Cloud
+        uses: ./.github/actions/gcloud-credentials
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3.1.1
+
+      - name: Terraform Initialize
+        run: |
+          terraform init --reconfigure \
+            -backend-config="bucket=${{ secrets.BUCKET_NAME }}" \
+            -backend-config="prefix=terraform/state"
+        working-directory: TP4/H3/terraform
+
+      - name: Terraform Destroy
+        run: |
+          terraform destroy -lock=false -auto-approve
+        working-directory: TP4/H3/terraform

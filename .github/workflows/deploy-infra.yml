@@ -1,0 +1,50 @@
+name: Deploy Infrastructure
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-infra:
+    if: "!contains(github.event.head_commit.message, 'delete')"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.6
+
+      - name: Setup Google Cloud
+        uses: ./.github/actions/gcloud-credentials
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3.1.1
+
+      - name: Terraform Initialize
+        run: |
+          terraform init --reconfigure \
+            -backend-config="bucket=${{ secrets.BUCKET_NAME }}" \
+            -backend-config="prefix=terraform/state"
+        working-directory: TP4/H3/terraform
+
+      - name: Terraform Plan
+        run: |
+          terraform plan -out=tfplan
+        working-directory: TP4/H3/terraform
+
+      - name: Terraform Apply
+        run: |
+          terraform apply -lock=false -auto-approve tfplan
+        working-directory: TP4/H3/terraform
+
+      - name: Trigger Next Pipeline
+        uses: actions/github-script@v5
+        with:
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'deploy-services.yml',
+              ref: 'main'
+            })

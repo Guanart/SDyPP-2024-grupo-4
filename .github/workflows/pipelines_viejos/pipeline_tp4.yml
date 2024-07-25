@@ -1,0 +1,104 @@
+name: SDyPP-grupo4-tp4-h3
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+jobs:
+  deploy-infra:
+    if: "!contains(github.event.head_commit.message, 'delete')" # Skip this job if commit message contains 'delete'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.6
+
+      - name: Setup Google Cloud
+        uses: ./.github/actions/gcloud-credentials
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3.1.1
+
+      - name: Terraform Initialize
+        run: |
+          terraform init --reconfigure \
+            -backend-config="bucket=${{ secrets.BUCKET_NAME }}" \
+            -backend-config="prefix=terraform/state"
+        working-directory: TP4/H3/terraform
+
+      - name: Terraform Plan
+        run: |
+          terraform plan -out=tfplan
+        working-directory: TP4/H3/terraform
+
+      - name: Terraform Apply
+        run: |
+          terraform apply -lock=false -auto-approve tfplan
+        working-directory: TP4/H3/terraform
+
+  delete-infra:
+    if: contains(github.event.head_commit.message, 'delete')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.6
+
+      - name: Setup Google Cloud
+        uses: ./.github/actions/gcloud-credentials
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3.1.1
+
+      - name: Terraform Initialize
+        run: |
+          terraform init --reconfigure \
+            -backend-config="bucket=${{ secrets.BUCKET_NAME }}" \
+            -backend-config="prefix=terraform/state"
+        working-directory: TP4/H3/terraform
+
+      - name: Terraform Destroy
+        run: |
+          terraform destroy -lock=false -auto-approve
+        working-directory: TP4/H3/terraform
+
+  deploy-services-apps-workers:
+    needs: deploy-infra
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.6
+
+      - name: Setup Google Cloud
+        uses: ./.github/actions/gcloud-credentials
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: Install gke-gcloud-auth-plugin
+        run: gcloud components install gke-gcloud-auth-plugin
+
+      - name: Get Kubernetes Credentials
+        run: |
+          gcloud container clusters get-credentials primary --zone "us-east1-b" --project ${{ secrets.PROJECT_ID }}
+
+      - name: Create Kubernetes Services
+        run: |
+          kubectl apply -f TP4/H3/servicios/rabbitmq/rabbitmq-deployment.yaml
+          kubectl apply -f TP4/H3/servicios/rabbitmq/rabbitmq-service.yaml
+          kubectl apply -f TP4/H3/servicios/redis/redis-deployment.yaml
+          kubectl apply -f TP4/H3/servicios/redis/redis-service.yaml
+
+      - name: Create Kubernetes Apps
+        run: |
+          kubectl apply -f TP4/H3/apps/particionador/particionador-deployment.yaml
+          kubectl apply -f TP4/H3/apps/particionador/particionador-service.yaml
+          kubectl apply -f TP4/H3/apps/unificador/unificador-deployment.yaml
+          kubectl apply -f TP4/H3/apps/unificador/unificador-service.yaml
+          kubectl apply -f TP4/H3/apps/web-server/web-server-deployment.yaml
+          kubectl apply -f TP4/H3/apps/web-server/web-server-service.yaml
+
+      - name: Create Kubernetes Apps
+        run: kubectl apply -f TP4/H3/workers/worker-deployment.yaml
