@@ -24,10 +24,10 @@ jobs:
 
       - name: Create Kubernetes Services
         run: |
-          kubectl apply -f TP4/H3/servicios/rabbitmq/rabbitmq-deployment.yaml
-          kubectl apply -f TP4/H3/servicios/rabbitmq/rabbitmq-service.yaml
-          kubectl apply -f TP4/H3/servicios/redis/redis-deployment.yaml
-          kubectl apply -f TP4/H3/servicios/redis/redis-service.yaml
+          kubectl apply -f TP-Integrador/Services/rabbitmq/rabbitmq-deployment.yaml
+          kubectl apply -f TP-Integrador/Services/rabbitmq/rabbitmq-service.yaml
+          kubectl apply -f TP-Integrador/Services/redis/redis-deployment.yaml
+          kubectl apply -f TP-Integrador/Services/redis/redis-service.yaml
 
       - name: Trigger Next Pipeline
         uses: actions/github-script@v5
