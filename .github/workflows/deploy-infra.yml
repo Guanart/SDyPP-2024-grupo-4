@@ -18,6 +18,21 @@ jobs:
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
 
+      - name: Check and Create GCS Bucket
+        env:
+          BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
+          PROJECT_ID: ${{ secrets.PROJECT_ID }}
+        run: |
+          gcloud config set project $PROJECT_ID
+          # Check if the bucket exists
+          BUCKET_URI="gs://${BUCKET_NAME}/"
+          if gsutil ls -p $PROJECT_ID | grep -q $BUCKET_URI; then
+            echo "Bucket $BUCKET_NAME already exists."
+          else
+            echo "Creating bucket $BUCKET_NAME..."
+            gsutil mb -p $PROJECT_ID $BUCKET_URI
+          fi
+
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3.1.1
 
@@ -38,7 +53,56 @@ jobs:
           terraform apply -lock=false -auto-approve tfplan
         working-directory: TP-Integrador/terraform
 
-      - name: Trigger Next Pipeline
+  install-argo:
+    name: Install Argo CD tool
+    if: "!contains(github.event.head_commit.message, 'delete')"
+    needs: deploy-infra
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.6
+
+      - name: GCP authentication
+        uses: google-github-actions/auth@v2
+        with:
+            credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: GCP kubectl plugin
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+            version: '>= 363.0.0'
+            install_components: 'kubectl'
+
+      - name: Get Kubernetes cluster credentials
+        run: |
+            REGION="us-east1-b"
+            gcloud container clusters get-credentials ${{ secrets.PROJECT_ID }} --region=${REGION}
+
+      - name: Check if Argo CD namespace exists
+        id: check_namespace
+        run: |
+            if kubectl get namespace argocd; then
+              echo "Namespace argocd already exists."
+              echo "::set-output name=exists::true"
+            else
+              echo "Namespace argocd does not exist."
+              echo "::set-output name=exists::false"
+            fi
+
+      - name: Create Argo CD namespace
+        if: steps.check_namespace.outputs.exists == 'false'
+        run: |
+            kubectl create namespace argocd
+            kubectl create namespace services
+            kubectl create namespace apps
+
+      - name: Install Argo CD
+        if: steps.check_namespace.outputs.exists == 'false'
+        run: |
+            kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+            
+      - name: Trigger Deploy Services Pipeline
         uses: actions/github-script@v5
         with:
           script: |
