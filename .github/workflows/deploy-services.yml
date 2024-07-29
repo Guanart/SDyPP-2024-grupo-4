@@ -3,6 +3,10 @@ name: Deploy Services
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+  actions: write
+
 jobs:
   deploy-services:
     runs-on: ubuntu-latest
