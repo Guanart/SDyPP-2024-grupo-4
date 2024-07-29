@@ -73,10 +73,9 @@ jobs:
             version: '>= 363.0.0'
             install_components: 'kubectl'
 
-      - name: Get Kubernetes cluster credentials
+      - name: Get Kubernetes Credentials
         run: |
-            REGION="us-east1-b"
-            gcloud container clusters get-credentials ${{ secrets.PROJECT_ID }} --region=${REGION}
+          gcloud container clusters get-credentials primary --zone "us-east1-b" --project ${{ secrets.PROJECT_ID }}
 
       - name: Check if Argo CD namespace exists
         id: check_namespace
