@@ -3,6 +3,10 @@ name: Deploy Applications
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+  actions: write
+
 jobs:
   deploy-apps:
     runs-on: ubuntu-latest

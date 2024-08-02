@@ -4,10 +4,14 @@ on:
   push:
     branches:
       - main
+      
+permissions:
+  contents: write
+  actions: write
 
 jobs:
   deploy-infra:
-    if: "!contains(github.event.head_commit.message, 'delete')"
+    if: "!contains(github.event.head_commit.message, 'delete') && !contains(github.event.head_commit.message, 'pause')"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

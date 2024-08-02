@@ -1,0 +1,38 @@
+name: SDyPP-grupo4-tp-integrador
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  pause-infra:
+    if: contains(github.event.head_commit.message, 'pause')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.6
+
+      - name: Setup Google Cloud
+        uses: ./.github/actions/gcloud-credentials
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: Install gke-gcloud-auth-plugin
+        run: gcloud components install gke-gcloud-auth-plugin
+
+      - name: Get Kubernetes Credentials
+        run: |
+          gcloud container clusters get-credentials primary --zone "us-east1-b" --project ${{ secrets.PROJECT_ID }}
+
+      - name: Scale Down Redis Deployment
+        run: |
+          kubectl scale deployment redis --replicas=0 -n services
+
+      - name: Scale Down RabbitMQ Deployment
+        run: |
+          kubectl scale deployment rabbitmq --replicas=0 -n services

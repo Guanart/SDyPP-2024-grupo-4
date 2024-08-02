@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+  actions: write
+
 jobs:
   delete-infra:
     if: contains(github.event.head_commit.message, 'delete')
