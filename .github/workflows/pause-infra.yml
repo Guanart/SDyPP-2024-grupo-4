@@ -29,11 +29,10 @@ jobs:
         run: |
           gcloud container clusters get-credentials primary --zone "us-east1-b" --project ${{ secrets.PROJECT_ID }}
 
-      - name: Pause Kubernetes Deployments
+      - name: Scale Down Redis Deployment
         run: |
-          kubectl scale deployment redis-deployment --replicas=0
-          kubectl scale deployment rabbitmq-deployment --replicas=0
-          kubectl scale deployment particionador-deployment --replicas=0
-          kubectl scale deployment unificador-deployment --replicas=0
-          kubectl scale deployment web-server-deployment --replicas=0
-          kubectl scale deployment worker-deployment --replicas=0
+          kubectl scale deployment redis --replicas=0 -n services
+
+      - name: Scale Down RabbitMQ Deployment
+        run: |
+          kubectl scale deployment rabbitmq --replicas=0 -n services
