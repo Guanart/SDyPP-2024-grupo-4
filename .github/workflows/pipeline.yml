@@ -124,7 +124,7 @@ install-ingress:
         TRAEFIK_IP=$(gcloud compute addresses describe traefik-ip --region us-east1 --format='get(address)')
         echo "TRAEFIK_IP=$TRAEFIK_IP" >> $GITHUB_ENV
 
-  deploy-services:
+  deploy-services-and-apps:
     needs: [deploy-infra, install-ingress]
     runs-on: ubuntu-latest
     steps:
@@ -143,35 +143,9 @@ install-ingress:
         run: |
           gcloud container clusters get-credentials primary --zone "us-east1-b" --project ${{ secrets.PROJECT_ID }}
 
-      - name: Deploy RabbitMQ and Redis
+      - name: Deploy ArgoCD Applications
         run: |
-          kubectl apply -f TP-Integrador/Services/rabbitmq/rabbitmq-deployment.yaml
-          kubectl apply -f TP-Integrador/Services/rabbitmq/rabbitmq-service.yaml
-          kubectl apply -f TP-Integrador/Services/redis/redis-deployment.yaml
-          kubectl apply -f TP-Integrador/Services/redis/redis-service.yaml
-
-  deploy-apps:
-    needs: [deploy-services]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4.1.6
-
-      - name: Setup Google Cloud
-        uses: ./.github/actions/gcloud-credentials
-        with:
-          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
-
-      - name: Get Kubernetes Credentials
-        run: |
-          gcloud container clusters get-credentials primary --zone "us-east1-b" --project ${{ secrets.PROJECT_ID }}
-
-      - name: Deploy Coordinator and KeepAliveServer Apps
-        run: |
-          kubectl apply -f TP-Integrador/apps/coordinator/coordinator-deployment.yaml
-          kubectl apply -f TP-Integrador/apps/coordinator/coordinator-service.yaml
-          kubectl apply -f TP-Integrador/apps/keepalive/keepalive-deployment.yaml
-          kubectl apply -f TP-Integrador/apps/keepalive/keepalive-service.yaml
+          kubectl apply -f TP-Integrador/argocd-applications.yaml
 
   delete-infra:
     if: contains(github.event.head_commit.message, 'delete')
