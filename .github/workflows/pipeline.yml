@@ -4,11 +4,6 @@ on:
   push:
     branches:
       - main
-      
-# permissions:
-#   contents: write
-#   actions: write
-
 jobs:
   deploy-infra:
     if: "!contains(github.event.head_commit.message, 'delete') && !contains(github.event.head_commit.message, 'pause')"
@@ -28,7 +23,6 @@ jobs:
           PROJECT_ID: ${{ secrets.PROJECT_ID }}
         run: |
           gcloud config set project $PROJECT_ID
-          # Check if the bucket exists
           BUCKET_URI="gs://${BUCKET_NAME}/"
           if gsutil ls -p $PROJECT_ID | grep -q $BUCKET_URI; then
             echo "Bucket $BUCKET_NAME already exists."
@@ -48,20 +42,15 @@ jobs:
         working-directory: TP-Integrador/terraform
 
       - name: Terraform Plan
-        run: |
-          terraform plan -out=tfplan
+        run: terraform plan -out=tfplan
         working-directory: TP-Integrador/terraform
 
       - name: Terraform Apply
-        run: |
-          terraform apply -lock=false -auto-approve tfplan
+        run: terraform apply -lock=false -auto-approve tfplan
         working-directory: TP-Integrador/terraform
 
 
-        
   install-argo:
-    name: Install Argo CD tool
-    if: "!contains(github.event.head_commit.message, 'delete') && !contains(github.event.head_commit.message, 'pause')"
     needs: deploy-infra
     runs-on: ubuntu-latest
     steps:
@@ -71,7 +60,7 @@ jobs:
       - name: GCP authentication
         uses: google-github-actions/auth@v2
         with:
-            credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
 
       - name: GCP kubectl plugin
         uses: google-github-actions/setup-gcloud@v2
@@ -83,33 +72,60 @@ jobs:
         run: |
           gcloud container clusters get-credentials primary --zone "us-east1-b" --project ${{ secrets.PROJECT_ID }}
 
-      - name: Check if Argo CD namespace exists
-        id: check_namespace
+      - name: Install ArgoCD
         run: |
-            if kubectl get namespace argocd; then
-              echo "Namespace argocd already exists."
-              echo "::set-output name=exists::true"
-            else
-              echo "Namespace argocd does not exist."
-              echo "::set-output name=exists::false"
-            fi
-
-      - name: Create Argo CD namespace
-        if: steps.check_namespace.outputs.exists == 'false'
-        run: |
-            kubectl create namespace argocd
-            kubectl create namespace services
-            kubectl create namespace apps
-
-      - name: Install Argo CD
-        if: steps.check_namespace.outputs.exists == 'false'
-        run: |
-            kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+          kubectl create namespace argocd || echo "Namespace already exists"
+          kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
 
+install-ingress:
+  needs: deploy-infra
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4.1.6
 
-  pause-infra:
-    if: contains(github.event.head_commit.message, 'pause')
+    - name: Setup Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+    - name: Install gke-gcloud-auth-plugin
+      run: gcloud components install gke-gcloud-auth-plugin
+
+    - name: Get Kubernetes Credentials
+      run: |
+        gcloud container clusters get-credentials primary --zone "us-east1-b" --project ${{ secrets.PROJECT_ID }}
+
+    - name: Install Helm
+      run: |
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+    - name: Add Traefik Helm Repository
+      run: |
+        helm repo add traefik https://traefik.github.io/charts
+        helm repo update
+
+    - name: Deploy Traefik
+      run: |
+        helm upgrade --install traefik traefik/traefik \
+          --namespace traefik \
+          --create-namespace \
+          -f TP-Integrador/traefik/traefik-values.yaml
+
+    - name: Reserve Static IP for Traefik
+      run: |
+        gcloud compute addresses create traefik-ip --region us-east1
+        TRAEFIK_IP=$(gcloud compute addresses describe traefik-ip --region us-east1 --format='get(address)')
+        kubectl patch svc traefik -n traefik -p "{\"spec\": {\"loadBalancerIP\": \"$TRAEFIK_IP\"}}"
+
+    - name: Save Traefik IP for future usage
+      run: |
+        TRAEFIK_IP=$(gcloud compute addresses describe traefik-ip --region us-east1 --format='get(address)')
+        echo "TRAEFIK_IP=$TRAEFIK_IP" >> $GITHUB_ENV
+
+  deploy-services:
+    needs: [deploy-infra, install-ingress]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -127,15 +143,35 @@ jobs:
         run: |
           gcloud container clusters get-credentials primary --zone "us-east1-b" --project ${{ secrets.PROJECT_ID }}
 
-      - name: Scale Down Redis Deployment
+      - name: Deploy RabbitMQ and Redis
         run: |
-          kubectl scale deployment redis --replicas=0 -n services
+          kubectl apply -f TP-Integrador/Services/rabbitmq/rabbitmq-deployment.yaml
+          kubectl apply -f TP-Integrador/Services/rabbitmq/rabbitmq-service.yaml
+          kubectl apply -f TP-Integrador/Services/redis/redis-deployment.yaml
+          kubectl apply -f TP-Integrador/Services/redis/redis-service.yaml
 
-      - name: Scale Down RabbitMQ Deployment
+  deploy-apps:
+    needs: [deploy-services]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.6
+
+      - name: Setup Google Cloud
+        uses: ./.github/actions/gcloud-credentials
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: Get Kubernetes Credentials
         run: |
-          kubectl scale deployment rabbitmq --replicas=0 -n services
+          gcloud container clusters get-credentials primary --zone "us-east1-b" --project ${{ secrets.PROJECT_ID }}
 
-
+      - name: Deploy Coordinator and KeepAliveServer Apps
+        run: |
+          kubectl apply -f TP-Integrador/apps/coordinator/coordinator-deployment.yaml
+          kubectl apply -f TP-Integrador/apps/coordinator/coordinator-service.yaml
+          kubectl apply -f TP-Integrador/apps/keepalive/keepalive-deployment.yaml
+          kubectl apply -f TP-Integrador/apps/keepalive/keepalive-service.yaml
 
   delete-infra:
     if: contains(github.event.head_commit.message, 'delete')
@@ -164,9 +200,8 @@ jobs:
           terraform destroy -lock=false -auto-approve
         working-directory: TP-Integrador/terraform
 
-
-
-  deploy-services:
+  pause-infra:
+    if: contains(github.event.head_commit.message, 'pause')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -184,65 +219,10 @@ jobs:
         run: |
           gcloud container clusters get-credentials primary --zone "us-east1-b" --project ${{ secrets.PROJECT_ID }}
 
-      - name: Create Kubernetes Services
+      - name: Scale Down Redis Deployment
         run: |
-          kubectl apply -f TP-Integrador/Services/rabbitmq/rabbitmq-deployment.yaml
-          kubectl apply -f TP-Integrador/Services/rabbitmq/rabbitmq-service.yaml
-          kubectl apply -f TP-Integrador/Services/redis/redis-deployment.yaml
-          kubectl apply -f TP-Integrador/Services/redis/redis-service.yaml
+          kubectl scale deployment redis --replicas=0 -n services
 
-
-
-  deploy-apps:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4.1.6
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-            username: ${{ secrets.DOCKERHUB_USERNAME }}
-            password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build and push blocks coordinator service image
-        uses: docker/build-push-action@v5
-        with:
-            context: ./TP-Integrador/Coordinator
-            push: true
-            tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-integrador-coordinator:1.0.0
-
-      - name: Build and push pool manager service image
-        uses: docker/build-push-action@v5
-        with:
-            context: ./TP-Integrador/KeepAliveServer
-            push: true
-            tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-integrador-pool-manager:1.0.0
-
-      - name: Build and push worker image
-        uses: docker/build-push-action@v5
-        with:
-            context: ./TP-Integrador/Worker/CPU
-            push: true
-            tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-integrador-cpu-worker:1.0.0
-
-      - name: Setup Google Cloud
-        uses: ./.github/actions/gcloud-credentials
-        with:
-          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
-
-      - name: Install gke-gcloud-auth-plugin
-        run: gcloud components install gke-gcloud-auth-plugin
-
-      - name: Get Kubernetes Credentials
+      - name: Scale Down RabbitMQ Deployment
         run: |
-          gcloud container clusters get-credentials primary --zone "us-east1-b" --project ${{ secrets.PROJECT_ID }}
-
-    #   - name: Create Kubernetes Apps
-    #     run: |
-    #       kubectl apply -f TP-Integrador/apps/particionador/particionador-deployment.yaml
-    #       kubectl apply -f TP-Integrador/apps/particionador/particionador-service.yaml
-    #       kubectl apply -f TP-Integrador/apps/unificador/unificador-deployment.yaml
-    #       kubectl apply -f TP-Integrador/apps/unificador/unificador-service.yaml
-    #       kubectl apply -f TP-Integrador/apps/web-server/web-server-deployment.yaml
-    #       kubectl apply -f TP-Integrador/apps/web-server/web-server-service.yaml
+          kubectl scale deployment rabbitmq --replicas=0 -n services
