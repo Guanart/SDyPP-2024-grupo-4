@@ -1,5 +1,8 @@
 name: SDyPP-grupo4-tp-integrador
 
+env:
+  ACTIONS_STEP_DEBUG: true
+
 on:
   push:
     branches:
@@ -73,6 +76,11 @@ jobs:
 
       # - name: Apply RBAC Configuration
       #   run: kubectl apply -f TP-Integrador/manifests/role-binding.yaml
+
+      - name: Apply RBAC Configuration
+        run: gcloud projects add-iam-policy-binding ${{ secrets.PROJECT_ID }} \
+          --member "serviceAccount:${{ secrets.SERVICE_ACCOUNT_EMAIL }}" \
+          --role "roles/container.clusterAdmin"
 
       - name: Install ArgoCD
         run: |
