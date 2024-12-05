@@ -69,7 +69,7 @@ jobs:
 
       - name: Get Kubernetes Credentials
         run: |
-          gcloud container clusters get-credentials primary --zone "us-east1-b" --project ${{ secrets.PROJECT_ID }}
+          gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
 
       - name: Install ArgoCD
         run: |
@@ -93,7 +93,7 @@ jobs:
 
       - name: Get Kubernetes Credentials
         run: |
-          gcloud container clusters get-credentials primary --zone "us-east1-b" --project ${{ secrets.PROJECT_ID }}
+          gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
 
       - name: Install Helm
         run: |
@@ -139,7 +139,7 @@ jobs:
 
       - name: Get Kubernetes Credentials
         run: |
-          gcloud container clusters get-credentials primary --zone "us-east1-b" --project ${{ secrets.PROJECT_ID }}
+          gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
 
       - name: Deploy ArgoCD Applications
         run: |
@@ -189,7 +189,7 @@ jobs:
 
       - name: Get Kubernetes Credentials
         run: |
-          gcloud container clusters get-credentials primary --zone "us-east1-b" --project ${{ secrets.PROJECT_ID }}
+          gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
 
       - name: Scale Down Redis Deployment
         run: |
