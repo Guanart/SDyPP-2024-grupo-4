@@ -52,6 +52,19 @@ jobs:
         run: terraform apply -lock=false -auto-approve tfplan
         working-directory: TP-Integrador/terraform
 
+      - name: GCP kubectl plugin
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+            version: '>= 363.0.0'
+            install_components: 'kubectl'
+
+      - name: Get Kubernetes Credentials
+        run: |
+          gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
+
+      - name: Apply RBAC Configuration
+        run: kubectl apply -f TP-Integrador/manifests/cluster-role-binding.yaml
+
   install-argo:
     needs: deploy-infra
     runs-on: ubuntu-latest
@@ -77,10 +90,10 @@ jobs:
       # - name: Apply RBAC Configuration
       #   run: kubectl apply -f TP-Integrador/manifests/role-binding.yaml
 
-      - name: Apply RBAC Configuration
-        run: gcloud projects add-iam-policy-binding ${{ secrets.PROJECT_ID }} \
-          --member "serviceAccount:${{ secrets.SERVICE_ACCOUNT_EMAIL }}" \
-          --role "roles/container.clusterAdmin"
+      # - name: Apply RBAC Configuration
+      #   run: gcloud projects add-iam-policy-binding ${{ secrets.PROJECT_ID }} \
+      #     --member="serviceAccount:${{ secrets.KUBERNETES_SERVICE_ACCOUNT_EMAIL }}" \
+      #     --role="roles/container.clusterAdmin"
 
       - name: Install ArgoCD
         run: |
