@@ -123,7 +123,7 @@ jobs:
           echo "TRAEFIK_IP=$TRAEFIK_IP" >> $GITHUB_ENV
 
   deploy-services-and-apps:
-    needs: [deploy-infra, install-ingress]
+    needs: [deploy-infra, install-ingress, install-argo]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
