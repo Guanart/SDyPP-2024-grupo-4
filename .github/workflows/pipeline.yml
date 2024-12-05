@@ -170,7 +170,7 @@ jobs:
 
       - name: Deploy ArgoCD Applications
         run: |
-          kubectl apply -f TP-Integrador/argocd-applications.yaml
+          kubectl apply -f TP-Integrador/argocd/argocd-applications.yaml
 
   delete-infra:
     if: contains(github.event.head_commit.message, 'delete')
