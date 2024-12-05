@@ -140,7 +140,12 @@ jobs:
 
       - name: Reserve Static IP for Traefik
         run: |
-          gcloud compute addresses create traefik-ip --region us-east1
+          if ! gcloud compute addresses describe traefik-ip --region us-east1 > /dev/null 2>&1; then
+            echo "Creating static IP address 'traefik-ip'..."
+            gcloud compute addresses create traefik-ip --region us-east1
+          else
+            echo "Static IP address 'traefik-ip' already exists."
+          fi
           TRAEFIK_IP=$(gcloud compute addresses describe traefik-ip --region us-east1 --format='get(address)')
           kubectl patch svc traefik -n traefik -p "{\"spec\": {\"loadBalancerIP\": \"$TRAEFIK_IP\"}}"
 
