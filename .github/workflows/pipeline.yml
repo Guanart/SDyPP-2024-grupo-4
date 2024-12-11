@@ -180,11 +180,11 @@ jobs:
 
       - name: Create ngrok namespace
         run: kubectl create namespace ngrok || echo "Namespace already exists"
-        
+
       - name: Create ngrok secret
         run: |
           kubectl create secret generic ngrok-secret \
-            --from-literal=authtoken=${{ secrets.NGROK_AUTHTOKEN }} \
+            --from-literal=authtoken=${{ secrets.NGROK_AUTH_TOKEN }} \
             --namespace=ngrok
 
         # - name: Install ngrok
