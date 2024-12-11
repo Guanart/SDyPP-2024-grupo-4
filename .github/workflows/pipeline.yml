@@ -183,9 +183,23 @@ jobs:
 
       - name: Create ngrok secret
         run: |
+          kubectl delete secret ngrok-secret -n ngrok || echo "Secret does not exist"
           kubectl create secret generic ngrok-secret \
-            --from-literal=authtoken=${{ secrets.NGROK_AUTH_TOKEN }} \
+            --from-literal=ngrok-config="$(cat <<EOF
+          authtoken: ${{ secrets.NGROK_AUTH_TOKEN }}
+          version: "2" tunnels: coordinator:
+              addr: coordinator.apps.svc.cluster.local:5000
+              proto: http
+            keepalive:
+              addr: keepalive.apps.svc.cluster.local:5001
+              proto: http
+            rabbit:
+              addr: rabbitmq.services.svc.cluster.local:5672
+              proto: tcp
+          EOF
+          )" \
             --namespace=ngrok
+
 
         # - name: Install ngrok
         #   run: curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list && sudo apt update && sudo apt install ngrok
