@@ -162,7 +162,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.1.6
-          
+
+      - name: GCP authentication
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: GCP kubectl plugin
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+            version: '>= 363.0.0'
+            install_components: 'kubectl'
+
+      - name: Get Kubernetes Credentials
+        run: |
+          gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
+
       - name: Create ngrok secret
         run: |
           kubectl create secret generic ngrok-secret \
