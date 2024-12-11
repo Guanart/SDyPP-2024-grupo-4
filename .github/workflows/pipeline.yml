@@ -178,6 +178,9 @@ jobs:
         run: |
           gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
 
+      - name: Create ngrok namespace
+        run: kubectl create namespace ngrok || echo "Namespace already exists"
+        
       - name: Create ngrok secret
         run: |
           kubectl create secret generic ngrok-secret \
