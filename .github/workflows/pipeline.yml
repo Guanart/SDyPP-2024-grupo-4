@@ -101,63 +101,95 @@ jobs:
           kubectl create namespace argocd || echo "Namespace already exists"
           kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
-  install-ingress:
-    if: "contains(github.event.head_commit.message, '[install-ingress]')"
-    needs: deploy-infra
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4.1.6
+  # install-ingress:
+  #  if: "contains(github.event.head_commit.message, '[install-ingress]')"
+  #   needs: deploy-infra
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4.1.6
 
-      - name: GCP authentication
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+  #     - name: GCP authentication
+  #       uses: google-github-actions/auth@v2
+  #       with:
+  #         credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
 
-      - name: GCP kubectl plugin
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-            version: '>= 363.0.0'
-            install_components: 'kubectl'
+  #     - name: GCP kubectl plugin
+  #       uses: google-github-actions/setup-gcloud@v2
+  #       with:
+  #           version: '>= 363.0.0'
+  #           install_components: 'kubectl'
 
-      - name: Get Kubernetes Credentials
-        run: |
-          gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
+  #     - name: Get Kubernetes Credentials
+  #       run: |
+  #         gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
 
-      - name: Install Helm
-        run: |
-          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  #     - name: Install Helm
+  #       run: |
+  #         curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
-      - name: Add Traefik Helm Repository
-        run: |
-          helm repo add traefik https://traefik.github.io/charts
-          helm repo update
+  #     - name: Add Traefik Helm Repository
+  #       run: |
+  #         helm repo add traefik https://traefik.github.io/charts
+  #         helm repo update
 
-      - name: Deploy Traefik
-        run: |
-          helm upgrade --install traefik traefik/traefik \
-            --namespace traefik \
-            --create-namespace \
-            -f TP-Integrador/traefik/traefik-values.yaml
+  #     - name: Deploy Traefik
+  #       run: |
+  #         helm upgrade --install traefik traefik/traefik \
+  #           --namespace traefik \
+  #           --create-namespace \
+  #           -f TP-Integrador/traefik/traefik-values.yaml
 
-      - name: Reserve Static IP for Traefik
-        run: |
-          if ! gcloud compute addresses describe traefik-ip --region us-east1 > /dev/null 2>&1; then
-            echo "Creating static IP address 'traefik-ip'..."
-            gcloud compute addresses create traefik-ip --region us-east1
-          else
-            echo "Static IP address 'traefik-ip' already exists."
-          fi
-          TRAEFIK_IP=$(gcloud compute addresses describe traefik-ip --region us-east1 --format='get(address)')
-          kubectl patch svc traefik -n traefik -p "{\"spec\": {\"loadBalancerIP\": \"$TRAEFIK_IP\"}}"
+  #     - name: Reserve Static IP for Traefik
+  #       run: |
+  #         if ! gcloud compute addresses describe traefik-ip --region us-east1 > /dev/null 2>&1; then
+  #           echo "Creating static IP address 'traefik-ip'..."
+  #           gcloud compute addresses create traefik-ip --region us-east1
+  #         else
+  #           echo "Static IP address 'traefik-ip' already exists."
+  #         fi
+  #         TRAEFIK_IP=$(gcloud compute addresses describe traefik-ip --region us-east1 --format='get(address)')
+  #         kubectl patch svc traefik -n traefik -p "{\"spec\": {\"loadBalancerIP\": \"$TRAEFIK_IP\"}}"
 
-      - name: Save Traefik IP for future usage
-        run: |
-          TRAEFIK_IP=$(gcloud compute addresses describe traefik-ip --region us-east1 --format='get(address)')
-          echo "TRAEFIK_IP=$TRAEFIK_IP" >> $GITHUB_ENV
+  #     - name: Save Traefik IP for future usage
+  #       run: |
+  #         TRAEFIK_IP=$(gcloud compute addresses describe traefik-ip --region us-east1 --format='get(address)')
+  #         echo "TRAEFIK_IP=$TRAEFIK_IP" >> $GITHUB_ENV
+
+  install-ngrok:
+    if: "contains(github.event.head_commit.message, '[install-ngrok]')"
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v4.1.6
+          
+        - name: Create ngrok secret
+          run: |
+            kubectl create secret generic ngrok-secret \
+              --from-literal=authtoken=${{ secrets.NGROK_AUTHTOKEN }} \
+              --namespace=ngrok
+
+        # - name: Install ngrok
+        #   run: curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list && sudo apt update && sudo apt install ngrok
+
+        # - name: Start ngrok tunnels
+        #   run: |
+        #     ngrok config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
+        #     nohup ngrok http 5000 &
+        #     nohup ngrok tcp 5672 &
+
+        # - name: Wait for ngrok
+        #   run: sleep 10
+
+        # - name: Get ngrok public URLs
+        #   run: |
+        #     curl -s http://localhost:4040/api/tunnels > tunnels.json
+        #     echo "Coordinador: $(jq -r '.tunnels[] | select(.name=="command_line").public_url' tunnels.json)"
+        #     echo "RabbitMQ: $(jq -r '.tunnels[] | select(.name=="tcp").public_url' tunnels.json)"
 
   deploy-services-and-apps:
-    needs: [deploy-infra, install-ingress, install-argo]
+    # needs: [deploy-infra, install-ingress, install-argo]
+    needs: [deploy-infra, install-ngrok, install-argo]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
