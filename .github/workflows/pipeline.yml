@@ -158,16 +158,16 @@ jobs:
 
   install-ngrok:
     if: "contains(github.event.head_commit.message, '[install-ngrok]')"
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v4.1.6
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.6
           
-        - name: Create ngrok secret
-          run: |
-            kubectl create secret generic ngrok-secret \
-              --from-literal=authtoken=${{ secrets.NGROK_AUTHTOKEN }} \
-              --namespace=ngrok
+      - name: Create ngrok secret
+        run: |
+          kubectl create secret generic ngrok-secret \
+            --from-literal=authtoken=${{ secrets.NGROK_AUTHTOKEN }} \
+            --namespace=ngrok
 
         # - name: Install ngrok
         #   run: curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list && sudo apt update && sudo apt install ngrok
