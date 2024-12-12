@@ -101,8 +101,41 @@ jobs:
           kubectl create namespace argocd || echo "Namespace already exists"
           kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
-  # install-ingress:
-  #  if: "contains(github.event.head_commit.message, '[install-ingress]')"
+  install-ingress-nginx:
+    if: "contains(github.event.head_commit.message, '[install-ingress-nginx]')"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.6
+
+      - name: GCP authentication
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: GCP kubectl plugin
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+            version: '>= 363.0.0'
+            install_components: 'kubectl'
+
+      - name: Get Kubernetes Credentials
+        run: |
+          gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
+
+      - name: Create ingress-nginx namespace
+        run: kubectl create namespace ingress-nginx || echo "Namespace already exists"
+
+      - name: Install ingress-nginx
+        run: |
+          helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+          helm repo update
+          helm install nginx ingress-nginx/ingress-nginx -n ingress-nginx
+          helm upgrade --install -n ingress-nginx nginx ingress-nginx/ingress-nginx --values TP-Integrador/ingress-nginx/values.yaml
+
+        
+  # install-traefik:
+  #  if: "contains(github.event.head_commit.message, '[install-traefik]')"
   #   needs: deploy-infra
   #   runs-on: ubuntu-latest
   #   steps:
@@ -156,52 +189,52 @@ jobs:
   #         TRAEFIK_IP=$(gcloud compute addresses describe traefik-ip --region us-east1 --format='get(address)')
   #         echo "TRAEFIK_IP=$TRAEFIK_IP" >> $GITHUB_ENV
 
-  install-ngrok:
-    if: "contains(github.event.head_commit.message, '[install-ngrok]')"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4.1.6
+  # install-ngrok:
+  #   if: "contains(github.event.head_commit.message, '[install-ngrok]')"
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4.1.6
 
-      - name: GCP authentication
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+  #     - name: GCP authentication
+  #       uses: google-github-actions/auth@v2
+  #       with:
+  #         credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
 
-      - name: GCP kubectl plugin
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-            version: '>= 363.0.0'
-            install_components: 'kubectl'
+  #     - name: GCP kubectl plugin
+  #       uses: google-github-actions/setup-gcloud@v2
+  #       with:
+  #           version: '>= 363.0.0'
+  #           install_components: 'kubectl'
 
-      - name: Get Kubernetes Credentials
-        run: |
-          gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
+  #     - name: Get Kubernetes Credentials
+  #       run: |
+  #         gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
 
-      - name: Create ngrok namespace
-        run: kubectl create namespace ngrok || echo "Namespace already exists"
+  #     - name: Create ngrok namespace
+  #       run: kubectl create namespace ngrok || echo "Namespace already exists"
 
-      - name: Create ngrok secret
-        run: |
-          kubectl delete secret ngrok-secret -n ngrok || echo "Secret does not exist"
-          kubectl create secret generic ngrok-secret \
-            --from-literal=ngrok-authtoken="${{ secrets.NGROK_AUTH_TOKEN }}" \
-            --from-literal=ngrok-config="$(cat <<EOF
-          authtoken: ${{ secrets.NGROK_AUTH_TOKEN }}
-          version: "2"
-          tunnels:
-            coordinator:
-              addr: coordinator.apps.svc.cluster.local:5000
-              proto: http
-            keepalive:
-              addr: keepalive.apps.svc.cluster.local:5001
-              proto: http
-            rabbit:
-              addr: rabbitmq.services.svc.cluster.local:5672
-              proto: tcp
-          EOF
-          )" \
-            --namespace=ngrok
+  #     - name: Create ngrok secret
+  #       run: |
+  #         kubectl delete secret ngrok-secret -n ngrok || echo "Secret does not exist"
+  #         kubectl create secret generic ngrok-secret \
+  #           --from-literal=ngrok-authtoken="${{ secrets.NGROK_AUTH_TOKEN }}" \
+  #           --from-literal=ngrok-config="$(cat <<EOF
+  #         authtoken: ${{ secrets.NGROK_AUTH_TOKEN }}
+  #         version: "2"
+  #         tunnels:
+  #           coordinator:
+  #             addr: coordinator.apps.svc.cluster.local:5000
+  #             proto: http
+  #           keepalive:
+  #             addr: keepalive.apps.svc.cluster.local:5001
+  #             proto: http
+  #           rabbit:
+  #             addr: rabbitmq.services.svc.cluster.local:5672
+  #             proto: tcp
+  #         EOF
+  #         )" \
+  #           --namespace=ngrok
 
 
         # - name: Install ngrok
@@ -223,8 +256,8 @@ jobs:
         #     echo "RabbitMQ: $(jq -r '.tunnels[] | select(.name=="tcp").public_url' tunnels.json)"
 
   deploy-services-and-apps:
-    # needs: [deploy-infra, install-ingress, install-argo]
-    needs: [deploy-infra, install-ngrok, install-argo]
+    # needs: [deploy-infra, install-traefik, install-argo]
+    needs: [deploy-infra, install-ingress-nginx, install-argo]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
