@@ -276,6 +276,16 @@ jobs:
         run: |
           gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
 
+      - name: Install Rabbitmq Cluster CRD
+        run: kubectl apply -f "https://github.com/rabbitmq/cluster-operator/releases/latest/download/cluster-operator.yml"
+
+      - name: Create namespaces
+        run: |
+          kubectl create namespace services || echo "Namespace already exists"
+          kubectl create namespace apps || echo "Namespace already exists"
+          kubectl create namespace rabbitmq-namespace || echo "Namespace already exists"          
+        # kubectl create namespace database || echo "Namespace already exists"
+
       - name: Deploy ArgoCD Applications
         run: |
           kubectl apply -f TP-Integrador/manifests/argocd-applications.yaml
