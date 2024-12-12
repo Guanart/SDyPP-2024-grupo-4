@@ -283,7 +283,7 @@ jobs:
         run: |
           kubectl create namespace services || echo "Namespace already exists"
           kubectl create namespace apps || echo "Namespace already exists"
-          kubectl create namespace rabbitmq-namespace || echo "Namespace already exists"          
+        # kubectl create namespace rabbitmq-namespace || echo "Namespace already exists"          
         # kubectl create namespace database || echo "Namespace already exists"
 
       - name: Deploy ArgoCD Applications
