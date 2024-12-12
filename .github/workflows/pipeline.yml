@@ -127,12 +127,24 @@ jobs:
       - name: Create ingress-nginx namespace
         run: kubectl create namespace ingress-nginx || echo "Namespace already exists"
 
+      - name: Reserve Static IP for Ingress
+        run: |
+          if ! gcloud compute addresses describe ingress-ip --region us-east1 > /dev/null 2>&1; then
+            echo "Creating static IP address 'ingress-ip'..."
+            gcloud compute addresses create ingress-ip --region us-east1
+          else
+            echo "Static IP address 'ingress-ip' already exists."
+          fi
+          INGRESS_IP=$(gcloud compute addresses describe ingress-ip --region us-east1 --format='get(address)')
+
       - name: Install ingress-nginx
         run: |
           helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
           helm repo update
           helm install nginx ingress-nginx/ingress-nginx -n ingress-nginx
-          helm upgrade --install -n ingress-nginx nginx ingress-nginx/ingress-nginx --values TP-Integrador/ingress-nginx/values.yaml
+          helm upgrade --install -n ingress-nginx nginx ingress-nginx/ingress-nginx \
+            --values TP-Integrador/ingress-nginx/values.yaml \
+            --set controller.service.loadBalancerIP=$INGRESS_IP
 
         
   # install-traefik:
@@ -283,12 +295,36 @@ jobs:
         run: |
           kubectl create namespace services || echo "Namespace already exists"
           kubectl create namespace apps || echo "Namespace already exists"
-        # kubectl create namespace rabbitmq-namespace || echo "Namespace already exists"          
-        # kubectl create namespace database || echo "Namespace already exists"
 
       - name: Deploy ArgoCD Applications
         run: |
           kubectl apply -f TP-Integrador/manifests/argocd-applications.yaml
+
+  config-rabbit:
+    if: contains(github.event.head_commit.message, '[config-rabbit]')
+    runs-on: ubuntu-latest
+    steps:     
+      - name: Checkout code
+        uses: actions/checkout@v4.1.6
+
+      - name: Setup Google Cloud
+        uses: ./.github/actions/gcloud-credentials
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: Install gke-gcloud-auth-plugin
+        run: gcloud components install gke-gcloud-auth-plugin
+
+      - name: Get Kubernetes Credentials
+        run: |
+          gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
+
+      - name: Create RabbitMQ Users
+        run: |
+          RABBITMQ_POD=$(kubectl get pods -n services -l app.kubernetes.io/name=rabbitmq -o jsonpath='{.items[0].metadata.name}' | tr -d '\n')
+          kubectl exec -n services $RABBITMQ_POD -- rabbitmqctl add_user user password
+          kubectl exec -n services $RABBITMQ_POD -- rabbitmqctl set_user_tags user user
+          kubectl exec -n services $RABBITMQ_POD -- rabbitmqctl set_permissions -p / user ".*" ".*" ".*"          
 
   delete-infra:
     if: contains(github.event.head_commit.message, 'delete')
