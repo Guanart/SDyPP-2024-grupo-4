@@ -146,7 +146,8 @@ jobs:
             --values TP-Integrador/ingress-nginx/values.yaml \
             --set controller.service.loadBalancerIP=$INGRESS_IP
           else
-            helm install nginx ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace
+            helm install nginx ingress-nginx/ingress-nginx -n ingress-nginx --create-namespace \
+            --set controller.service.loadBalancerIP=$INGRESS_IP
           fi
 
         
