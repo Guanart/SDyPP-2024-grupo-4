@@ -30,3 +30,4 @@ deploy 2
 borrando
 deploy
 ingress
+deploy
