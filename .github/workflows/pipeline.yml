@@ -296,12 +296,25 @@ jobs:
           kubectl create namespace services || echo "Namespace already exists"
           kubectl create namespace apps || echo "Namespace already exists"
 
-      - name: Edit ConfigMap from keepalive
+      - name: Create ConfigMap from keepalive
         run: |
-          kubectl apply -f TP-Integrador/manifests/apps/keepalive/keepalive-config.yaml
           INGRESS_IP=$(gcloud compute addresses describe ingress-ip --region us-east1 --format='get(address)')
-          kubectl patch configmap keepalive-config -n apps --type merge -p \
-            "{\"data\": {\"RABBITMQ_HOST\": \"$INGRESS_IP\", \"COORDINATOR_HOST\": \"$INGRESS_IP\", \"KEEPALIVE_HOST\": \"$INGRESS_IP\", \"PROJECT_ID\": \"${{ secrets.PROJECT_ID }}\"}}"
+          kubectl create configmap keepalive-config \
+          --from-literal=RABBITMQ_HOST=$INGRESS_IP \
+          --from-literal=RABBITMQ_PORT=5672 \
+          --from-literal=RABBITMQ_USER=user \
+          --from-literal=RABBITMQ_PASSWORD=password \
+          --from-literal=COORDINATOR_HOST=$INGRESS_IP \
+          --from-literal=COORDINATOR_PORT=5000 \
+          --from-literal=KEEPALIVE_HOST=$INGRESS_IP \
+          --from-literal=KEEPALIVE_PORT=5001 \
+          --from-literal=PROJECT_ID=${{ secrets.PROJECT_ID }} \
+          --from-literal=CREDENTIALS_PATH=./credentials.json \
+          -n apps --dry-run=client -o yaml | kubectl apply -f -
+
+        # kubectl apply -f TP-Integrador/manifests/apps/keepalive/keepalive-config.yaml
+        # kubectl patch configmap keepalive-config -n apps --type merge -p \
+        #   "{\"data\": {\"RABBITMQ_HOST\": \"$INGRESS_IP\", \"COORDINATOR_HOST\": \"$INGRESS_IP\", \"KEEPALIVE_HOST\": \"$INGRESS_IP\", \"PROJECT_ID\": \"${{ secrets.PROJECT_ID }}\"}}"
 
       - name: Deploy ArgoCD Applications
         run: |
