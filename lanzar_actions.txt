@@ -26,3 +26,4 @@ borrando dennuevoo
 levantando todo nuevamente
 aaaa
 deploy
+deploy 2
