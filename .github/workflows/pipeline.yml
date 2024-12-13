@@ -87,7 +87,10 @@ jobs:
       - name: Get Kubernetes Credentials
         run: |
           gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
-
+      
+      - name: Apply RBAC Configuration
+        run: kubectl apply -f TP-Integrador/manifests/cluster-role-binding.yaml
+      
       # - name: Apply RBAC Configuration
       #   run: kubectl apply -f TP-Integrador/manifests/role-binding.yaml
 
@@ -123,6 +126,9 @@ jobs:
       - name: Get Kubernetes Credentials
         run: |
           gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
+      
+      - name: Apply RBAC Configuration
+        run: kubectl apply -f TP-Integrador/manifests/cluster-role-binding.yaml
 
       - name: Create ingress-nginx namespace
         run: kubectl create namespace ingress-nginx || echo "Namespace already exists"
