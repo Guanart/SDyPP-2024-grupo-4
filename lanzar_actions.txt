@@ -16,3 +16,4 @@ delete
 ingress
 delete
 deploy todo
+deploy
