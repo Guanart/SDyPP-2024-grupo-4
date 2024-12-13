@@ -9,7 +9,7 @@ on:
       - main
 jobs:
   deploy-infra:
-    if: "!contains(github.event.head_commit.message, 'delete') && !contains(github.event.head_commit.message, 'pause') && contains(github.event.head_commit.message, 'deploy')"
+    if: "!contains(github.event.head_commit.message, 'delete') && !contains(github.event.head_commit.message, 'pause')"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -67,7 +67,7 @@ jobs:
 
   install-argo:
     if: "contains(github.event.head_commit.message, '[install-argo]')"
-    #needs: deploy-infra
+    needs: deploy-infra
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -87,9 +87,6 @@ jobs:
       - name: Get Kubernetes Credentials
         run: |
           gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
-      
-      - name: Apply RBAC Configuration
-        run: kubectl apply -f TP-Integrador/manifests/cluster-role-binding.yaml
       
       # - name: Apply RBAC Configuration
       #   run: kubectl apply -f TP-Integrador/manifests/role-binding.yaml
@@ -106,7 +103,7 @@ jobs:
 
   install-ingress-nginx:
     if: "contains(github.event.head_commit.message, '[install-ingress-nginx]')"
-    #needs: deploy-infra
+    needs: deploy-infra
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -126,9 +123,6 @@ jobs:
       - name: Get Kubernetes Credentials
         run: |
           gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
-      
-      - name: Apply RBAC Configuration
-        run: kubectl apply -f TP-Integrador/manifests/cluster-role-binding.yaml
 
       - name: Create ingress-nginx namespace
         run: kubectl create namespace ingress-nginx || echo "Namespace already exists"
@@ -276,8 +270,7 @@ jobs:
 
   deploy-services-and-apps:
     # needs: [deploy-infra, install-traefik, install-argo]
-    #needs: [deploy-infra, install-ingress-nginx, install-argo]
-    needs: [install-ingress-nginx, install-argo]
+    needs: [deploy-infra, install-ingress-nginx, install-argo]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
