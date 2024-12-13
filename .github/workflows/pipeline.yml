@@ -372,7 +372,6 @@ jobs:
 
   delete-infra:
     if: contains(github.event.head_commit.message, 'delete')
-    needs: [deploy-services-and-apps]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
