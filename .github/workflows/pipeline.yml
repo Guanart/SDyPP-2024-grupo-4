@@ -348,7 +348,10 @@ jobs:
           RABBITMQ_POD=$(kubectl get pods -n services -l app.kubernetes.io/name=rabbitmq -o jsonpath='{.items[0].metadata.name}' | tr -d '\n')
           kubectl exec -n services $RABBITMQ_POD -- rabbitmqctl add_user user password
           kubectl exec -n services $RABBITMQ_POD -- rabbitmqctl set_user_tags user user
-          kubectl exec -n services $RABBITMQ_POD -- rabbitmqctl set_permissions -p / user ".*" ".*" ".*"          
+          kubectl exec -n services $RABBITMQ_POD -- rabbitmqctl set_permissions -p / user ".*" ".*" ".*"
+          kubectl exec -n services $RABBITMQ_POD -- rabbitmqctl add_user admin admin
+          kubectl exec -n services $RABBITMQ_POD -- rabbitmqctl set_user_tags admin administrator
+          kubectl exec -n services $RABBITMQ_POD -- rabbitmqctl set_permissions -p / admin ".*" ".*" ".*"
 
   # deploy-worker-pool:
   #   if: contains(github.event.head_commit.message, '[deploy-worker-pool]')
