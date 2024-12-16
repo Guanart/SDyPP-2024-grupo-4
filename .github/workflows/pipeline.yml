@@ -377,6 +377,8 @@ jobs:
           INGRESS_IP=$(gcloud compute addresses describe ingress-ip --region us-east1 --format='get(address)')
           KEEP_ALIVE_SERVER_PORT=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.KEEPALIVE_PORT}')
           COORDINATOR_PORT=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.COORDINATOR_PORT}')
+          POOL_RABBITMQ_USER=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.RABBITMQ_USER}')
+          POOL_RABBITMQ_PASSWORD=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.RABBITMQ_PASSWORD}')
           CONSUME_RABBITMQ_PORT=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.RABBITMQ_PORT}')
           CONSUME_RABBITMQ_USER=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.RABBITMQ_USER}')
           CONSUME_RABBITMQ_PASSWORD=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.RABBITMQ_PASSWORD}')
@@ -387,6 +389,8 @@ jobs:
           sudo bash -c 'cat <<EOF > /home/packer/SDyPP-2024-grupo-4/TP-Integrador/docker-compose-worker-pool/.env
           POOL_RABBITMQ_HOST=rabbitmq
           POOL_RABBITMQ_PORT=5672
+          POOL_RABBITMQ_USER=${POOL_RABBITMQ_USER}
+          POOL_RABBITMQ_PASSWORD=${POOL_RABBITMQ_PASSWORD}
           CONSUME_RABBITMQ_HOST=${INGRESS_IP}
           CONSUME_RABBITMQ_PORT=${CONSUME_RABBITMQ_PORT}
           CONSUME_RABBITMQ_USER=${CONSUME_RABBITMQ_USER}
@@ -395,7 +399,7 @@ jobs:
           KEEP_ALIVE_SERVER_PORT=${KEEP_ALIVE_SERVER_PORT}
           COORDINATOR_HOST=${INGRESS_IP}
           COORDINATOR_PORT=${COORDINATOR_PORT}
-          EOF' && cd /home/packer/SDyPP-2024-grupo-4/TP-Integrador/docker-compose-worker-pool && docker compose up -d
+          EOF' && docker pull grupo4sdypp2024/tp-integrador-pool-manager:1.0.2 && git clone https://github.com/Guanart/SDyPP-2024-grupo-4.git && cd SDyPP-2024-grupo-4/TP-Integrador/docker-compose-worker-pool && docker compose up -d
           "
 
         # --project=integrador-sdypp \
