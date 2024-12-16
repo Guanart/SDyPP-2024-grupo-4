@@ -35,3 +35,4 @@ asdasd
 asd
 worker-pool
 rabbit user
+config rabbit
