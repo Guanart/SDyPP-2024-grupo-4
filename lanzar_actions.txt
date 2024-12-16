@@ -37,3 +37,4 @@ worker-pool
 rabbit user
 config rabbit
 configurando credenciales rabbit
+lanzando worker pool
