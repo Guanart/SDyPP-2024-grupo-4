@@ -383,6 +383,7 @@ jobs:
 
           gcloud compute instances create worker-pool-manager \
           --image=worker-pool \
+          --zone=us-central1-b \
           --metadata=startup-script="
           #!/bin/bash
           export POOL_RABBITMQ_HOST=rabbitmq  # Nombre del servicio en el archivo docker-compose
@@ -403,7 +404,6 @@ jobs:
         # --tags=docker,worker \
         # --boot-disk-size=20GB \
         # --machine-type=e2-small \
-        # --zone=us-central1-b \
 
   delete-infra:
     if: contains(github.event.head_commit.message, 'delete')
