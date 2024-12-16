@@ -395,7 +395,7 @@ jobs:
           KEEP_ALIVE_SERVER_PORT=${KEEP_ALIVE_SERVER_PORT}
           COORDINATOR_HOST=${INGRESS_IP}
           COORDINATOR_PORT=${COORDINATOR_PORT}
-          EOF'&& cd /home/packer/SDyPP-2024-grupo-4/TP-Integrador/docker-compose-worker-pool && docker compose up -d
+          EOF' && cd /home/packer/SDyPP-2024-grupo-4/TP-Integrador/docker-compose-worker-pool && docker compose up -d
           "
 
         # --project=integrador-sdypp \
