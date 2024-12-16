@@ -380,26 +380,6 @@ jobs:
           CONSUME_RABBITMQ_PORT=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.RABBITMQ_PORT}')
           CONSUME_RABBITMQ_USER=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.RABBITMQ_USER}')
           CONSUME_RABBITMQ_PASSWORD=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.RABBITMQ_PASSWORD}')
-
-        # gcloud compute instances create worker-pool-manager \
-        # --image=worker-pool \
-        # --zone=us-central1-a \
-        # --metadata=startup-script="#!/bin/bash
-        # cat <<EOF > /home/packer/SDyPP-2024-grupo-4/TP-Integrador/docker-compose-worker-pool/.env
-        # POOL_RABBITMQ_HOST=rabbitmq
-        # POOL_RABBITMQ_PORT=5672
-        # CONSUME_RABBITMQ_HOST=${INGRESS_IP}
-        # CONSUME_RABBITMQ_PORT=${CONSUME_RABBITMQ_PORT}
-        # CONSUME_RABBITMQ_USER=${CONSUME_RABBITMQ_USER}
-        # CONSUME_RABBITMQ_PASSWORD=${CONSUME_RABBITMQ_PASSWORD}
-        # KEEP_ALIVE_SERVER_HOST=${INGRESS_IP}
-        # KEEP_ALIVE_SERVER_PORT=${KEEP_ALIVE_SERVER_PORT}
-        # COORDINATOR_HOST=${INGRESS_IP}
-        # COORDINATOR_PORT=${COORDINATOR_PORT}
-        # EOF          
-        # cd /home/packer/SDyPP-2024-grupo-4/TP-Integrador/docker-compose-worker-pool
-        # docker-compose up -d"
-          
           gcloud compute instances create worker-pool-manager \
           --image=worker-pool \
           --zone=us-central1-a \
@@ -420,7 +400,7 @@ jobs:
           cd /home/packer/SDyPP-2024-grupo-4/TP-Integrador/docker-compose-worker-pool
           docker-compose up -d
           "
-          
+
         # --project=integrador-sdypp \
         # --tags=docker,worker \
         # --boot-disk-size=20GB \
