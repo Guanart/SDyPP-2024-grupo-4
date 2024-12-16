@@ -353,29 +353,57 @@ jobs:
           kubectl exec -n services $RABBITMQ_POD -- rabbitmqctl set_user_tags admin administrator
           kubectl exec -n services $RABBITMQ_POD -- rabbitmqctl set_permissions -p / admin ".*" ".*" ".*"
 
-  # deploy-worker-pool:
-  #   if: contains(github.event.head_commit.message, '[deploy-worker-pool]')
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4.1.6
+  deploy-worker-pool:
+    if: contains(github.event.head_commit.message, '[deploy-worker-pool]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.6
 
-  #     - name: Setup Google Cloud
-  #       uses: ./.github/actions/gcloud-credentials
-  #       with:
-  #         credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+      - name: Setup Google Cloud
+        uses: ./.github/actions/gcloud-credentials
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
 
-  #     - name: Install gke-gcloud-auth-plugin
-  #       run: gcloud components install gke-gcloud-auth-plugin
+      - name: Install gke-gcloud-auth-plugin
+        run: gcloud components install gke-gcloud-auth-plugin
 
-  #     - name: Get Kubernetes Credentials
-  #       run: |
-  #         gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
+      - name: Get Kubernetes Credentials
+        run: |
+          gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
 
-  #     - name: Deploy Worker Pool
-  #       run: |
-  #         kubectl apply -f TP-Integrador/manifests/apps/worker-pool/worker-pool-deployment.yaml
+      - name: Deploy Worker Pool
+        run: |
+          INGRESS_IP=$(gcloud compute addresses describe ingress-ip --region us-east1 --format='get(address)')
+          KEEP_ALIVE_SERVER_PORT=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.KEEPALIVE_PORT}')
+          COORDINATOR_PORT=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.COORDINATOR_PORT}')
+          CONSUME_RABBITMQ_PORT=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.RABBITMQ_PORT}')
+          CONSUME_RABBITMQ_USER=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.RABBITMQ_USER}')
+          CONSUME_RABBITMQ_PASSWORD=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.RABBITMQ_PASSWORD}')
 
+          gcloud compute instances create worker-pool-manager \
+          --image=worker-pool \
+          --metadata=startup-script="
+          #!/bin/bash
+          export POOL_RABBITMQ_HOST=rabbitmq  # Nombre del servicio en el archivo docker-compose
+          export POOL_RABBITMQ_PORT=5672  # Puerto del servicio en el archivo docker-compose
+          export CONSUME_RABBITMQ_HOST=${INGRESS_IP}
+          export CONSUME_RABBITMQ_PORT=${CONSUME_RABBITMQ_PORT}
+          export CONSUME_RABBITMQ_USER=${CONSUME_RABBITMQ_USER}
+          export CONSUME_RABBITMQ_PASSWORD=${CONSUME_RABBITMQ_PASSWORD}
+          export KEEP_ALIVE_SERVER_HOST=${INGRESS_IP}
+          export KEEP_ALIVE_SERVER_PORT=${KEEP_ALIVE_SERVER_PORT}
+          export COORDINATOR_HOST=${INGRESS_IP}
+          export COORDINATOR_PORT=${COORDINATOR_PORT}
+
+          git clone https://github.com/Guanart/SDyPP-2024-grupo-4.git
+          cd SDyPP-2024-grupo-4/TP-Integrador/docker-compose-worker-pool
+          docker-compose up -d"
+        # --project=integrador-sdypp \
+        # --tags=docker,worker \
+        # --boot-disk-size=20GB \
+        # --machine-type=e2-small \
+        # --zone=us-central1-b \
 
   delete-infra:
     if: contains(github.event.head_commit.message, 'delete')
