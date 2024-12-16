@@ -34,3 +34,4 @@ deploy
 asdasd
 asd
 worker-pool
+rabbit user
