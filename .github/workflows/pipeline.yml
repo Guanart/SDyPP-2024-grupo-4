@@ -372,7 +372,7 @@ jobs:
         run: |
           gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
 
-      - name: Generate .env file
+      - name: Generate .env file and Deploy Worker Pool with Terraform
         run: |
           INGRESS_IP=$(gcloud compute addresses describe ingress-ip --region us-east1 --format='get(address)')
           KEEP_ALIVE_SERVER_PORT=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.KEEPALIVE_PORT}')
@@ -383,6 +383,8 @@ jobs:
           CONSUME_RABBITMQ_USER=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.RABBITMQ_USER}')
           CONSUME_RABBITMQ_PASSWORD=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.RABBITMQ_PASSWORD}')
           
+          cd TP-Integrador/worker-pool
+
           cat <<EOF > .env
           POOL_RABBITMQ_HOST=rabbitmq
           POOL_RABBITMQ_PORT=5672
@@ -398,11 +400,12 @@ jobs:
           COORDINATOR_PORT=${COORDINATOR_PORT}
           EOF
 
-      - name: Deploy Worker Pool with Terraform
-        run: |
-          cd TP-Integrador/worker-pool
           terraform init
           terraform apply -auto-approve -var="env=$(cat .env)"
+
+
+      # - name: Deploy Worker Pool with Terraform
+      #   run: |
 
   delete-infra:
     if: contains(github.event.head_commit.message, 'delete')
