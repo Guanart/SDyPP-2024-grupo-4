@@ -372,7 +372,7 @@ jobs:
         run: |
           gcloud container clusters get-credentials primary --zone "us-east1-d" --project ${{ secrets.PROJECT_ID }}
 
-      - name: Deploy Worker Pool
+      - name: Generate .env file
         run: |
           INGRESS_IP=$(gcloud compute addresses describe ingress-ip --region us-east1 --format='get(address)')
           KEEP_ALIVE_SERVER_PORT=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.KEEPALIVE_PORT}')
@@ -382,11 +382,8 @@ jobs:
           CONSUME_RABBITMQ_PORT=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.RABBITMQ_PORT}')
           CONSUME_RABBITMQ_USER=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.RABBITMQ_USER}')
           CONSUME_RABBITMQ_PASSWORD=$(kubectl get configmap keepalive-config -n apps -o jsonpath='{.data.RABBITMQ_PASSWORD}')
-          gcloud compute instances create worker-pool-manager \
-          --image=worker-pool \
-          --zone=us-central1-a \
-          --metadata=startup-script="#!/bin/bash
-          sudo bash -c 'git clone https://github.com/Guanart/SDyPP-2024-grupo-4.git && cat <<EOF > /home/packer/SDyPP-2024-grupo-4/TP-Integrador/docker-compose-worker-pool/.env
+          
+          cat <<EOF > .env
           POOL_RABBITMQ_HOST=rabbitmq
           POOL_RABBITMQ_PORT=5672
           POOL_RABBITMQ_USER=${POOL_RABBITMQ_USER}
@@ -399,13 +396,13 @@ jobs:
           KEEP_ALIVE_SERVER_PORT=${KEEP_ALIVE_SERVER_PORT}
           COORDINATOR_HOST=${INGRESS_IP}
           COORDINATOR_PORT=${COORDINATOR_PORT}
-          EOF' && cd /home/packer/SDyPP-2024-grupo-4/TP-Integrador/docker-compose-worker-pool && docker compose up -d
-          "
+          EOF
 
-        # --project=integrador-sdypp \
-        # --tags=docker,worker \
-        # --boot-disk-size=20GB \
-        # --machine-type=e2-small \
+      - name: Deploy Worker Pool with Terraform
+        run: |
+          cd TP-Integrador/worker-pool
+          terraform init
+          terraform apply -auto-approve -var="metadata_startup_script=$(cat .env)"
 
   delete-infra:
     if: contains(github.event.head_commit.message, 'delete')
