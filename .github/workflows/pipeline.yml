@@ -402,7 +402,7 @@ jobs:
         run: |
           cd TP-Integrador/worker-pool
           terraform init
-          terraform apply -auto-approve -var="metadata_startup_script=$(cat .env)"
+          terraform apply -auto-approve -var="env=$(cat .env)"
 
   delete-infra:
     if: contains(github.event.head_commit.message, 'delete')
