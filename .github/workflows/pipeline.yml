@@ -403,9 +403,43 @@ jobs:
           terraform init
           terraform apply -auto-approve -var="env=$(cat .env)"
 
+  deploy-worker-cpu:
+    if: contains(github.event.head_commit.message, '[deploy-worker-cpu]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.6
 
-      # - name: Deploy Worker Pool with Terraform
-      #   run: |
+      - name: Setup Google Cloud
+        uses: ./.github/actions/gcloud-credentials
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      - name: Retrieve Worker Pool Public IP
+        run: |
+          WORKER_POOL_IP=$(gcloud compute instances describe worker-pool-manager \
+            --zone=us-central1-a \
+            --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
+          echo "WORKER_POOL_IP=${WORKER_POOL_IP}" >> $GITHUB_ENV
+          echo "La IP pública del worker pool manager es: ${WORKER_POOL_IP}"
+
+      - name: Deploy Worker CPU with Terraform
+        run: |
+          cd TP-Integrador/worker-cpu
+          cat <<EOF > .env
+          RABBITMQ_USER=user
+          RABBITMQ_PASSWORD=password
+          RABBITMQ_HOST=${WORKER_POOL_IP}
+          RABBITMQ_PORT=5672
+          COORDINATOR_HOST=${WORKER_POOL_IP}
+          COORDINATOR_PORT=5002
+          KEEPALIVE_HOST=${WORKER_POOL_IP}
+          KEEPALIVE_PORT=5002
+          ES_WORKER_POOL=true
+          EOF
+
+          terraform init
+          terraform apply -auto-approve -var="env=$(cat .env)"
 
   delete-infra:
     if: contains(github.event.head_commit.message, 'delete')
