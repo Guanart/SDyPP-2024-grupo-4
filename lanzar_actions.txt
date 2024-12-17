@@ -18,23 +18,4 @@ delete
 deploy todo
 deploy
 probamdp
-probando 2
-probando 3 je
-borrando
-borrandoooooo
-borrando dennuevoo
-levantando todo nuevamente
-aaaa
-deploy
-deploy 2
-borrando
-deploy
-ingress
-deploy
-asdasd
-asd
-worker-pool
-rabbit user
-config rabbit
-configurando credenciales rabbit
-lanzando worker pool
+probando 2deploy worker
