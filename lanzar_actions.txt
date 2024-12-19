@@ -21,3 +21,4 @@ probamdp
 probando 2deploy worker
 asdasd
 config rabbit
+deploy worker pool
