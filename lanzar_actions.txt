@@ -23,3 +23,4 @@ asdasd
 config rabbit
 deploy worker pool
 config rabbit
+desplegar worker pool
